@@ -12,7 +12,81 @@
         <listener-class>com.djmart.listener.AppContextListener</listener-class>
     </listener>
 
-    <!-- Session Configuration: 30-minute timeout -->
+    <!-- Filter Chain: Strictly ordered for security & auditability -->
+    <!-- 1. UTF-8 Character Encoding (First: ensures parameter parsing is UTF-8) -->
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>com.djmart.filter.EncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 2. Request Logging & Correlation ID (Assigns X-Request-ID & MDC) -->
+    <filter>
+        <filter-name>RequestLoggingFilter</filter-name>
+        <filter-class>com.djmart.filter.RequestLoggingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>RequestLoggingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 3. Security Headers (OWASP Content-Security-Policy, X-Frame-Options, etc.) -->
+    <filter>
+        <filter-name>SecurityHeadersFilter</filter-name>
+        <filter-class>com.djmart.filter.SecurityHeadersFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>SecurityHeadersFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 4. CSRF Defense (Validates synchronizer token on state-changing requests) -->
+    <filter>
+        <filter-name>CsrfFilter</filter-name>
+        <filter-class>com.djmart.filter.CsrfFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CsrfFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 5. Authentication & RBAC Authorization (Guards protected endpoints) -->
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>com.djmart.filter.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>AuthServlet</servlet-name>
+        <servlet-class>com.djmart.controller.AuthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/auth/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/api/v1/auth/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>HealthServlet</servlet-name>
+        <servlet-class>com.djmart.controller.HealthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HealthServlet</servlet-name>
+        <url-pattern>/api/v1/health</url-pattern>
+    </servlet-mapping>
+
+    <!-- Session Configuration: 30-minute timeout with HttpOnly cookie -->
     <session-config>
         <session-timeout>30</session-timeout>
         <cookie-config>

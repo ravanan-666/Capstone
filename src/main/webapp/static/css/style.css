@@ -220,3 +220,111 @@ a:hover {
   max-width: 500px;
   margin-bottom: 2rem;
 }
+
+/* Forms & Authentication */
+.auth-container {
+  max-width: 440px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+  font-size: 1.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--color-text-main);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: #fafaf8;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.15);
+}
+
+.form-text {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.form-error {
+  font-size: 0.825rem;
+  color: var(--color-danger);
+  margin-top: 0.35rem;
+}
+
+.btn-block {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 1rem;
+}
+
+.auth-footer {
+  margin-top: 1.75rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* Alerts */
+.alert {
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  color: var(--color-danger);
+  border-color: #ffcdd2;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: var(--color-success);
+  border-color: #c8e6c9;
+}
+
+.alert-info {
+  background-color: #e1f5fe;
+  color: var(--color-info);
+  border-color: #b3e5fc;
+}
