@@ -59,3 +59,12 @@ INSERT INTO reviews (id, product_id, user_id, rating, comment, created_at) VALUE
 (1, 1, 4, 5, 'Exceptional noise cancellation! Battery life easily lasts throughout my entire work week.', CURRENT_TIMESTAMP),
 (2, 2, 4, 4, 'Satisfying mechanical tactile feedback and solid aluminum build quality.', CURRENT_TIMESTAMP),
 (3, 5, 5, 5, 'Impeccable stitching and breathable cotton. Fits true to size.', CURRENT_TIMESTAMP);
+
+-- Reset auto-increment sequences past seed data to prevent primary key collision
+ALTER TABLE users ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE products ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE orders ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE order_items ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE cart_items ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE reviews ALTER COLUMN id RESTART WITH 100;
+
