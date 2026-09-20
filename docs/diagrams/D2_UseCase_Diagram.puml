@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+title DjMart - Use Case Diagram (D2)
+
+actor "Buyer" as buyer
+actor "Seller" as seller
+actor "Admin" as admin
+actor "Guest" as guest
+
+rectangle "DjMart Marketplace System" {
+  usecase "F1: Register & Login" as UC_Auth
+  usecase "F2: Manage Product Listings\n(Create, Edit, Delete)" as UC_ManageProducts
+  usecase "F3: Browse, Search & Filter Products" as UC_Browse
+  usecase "F4: Manage Shopping Cart" as UC_Cart
+  usecase "F5: Checkout & Mock Payment" as UC_Checkout
+  usecase "F6a: View Order History (Buyer)" as UC_BuyerOrders
+  usecase "F6b: View Incoming Orders (Seller)" as UC_SellerOrders
+  usecase "F7: Manage Users & Orders, Moderate Listings" as UC_AdminModerate
+  usecase "F8: Submit Product Reviews & Ratings" as UC_Reviews
+}
+
+guest --> UC_Auth
+guest --> UC_Browse
+
+buyer --|> guest
+buyer --> UC_Cart
+buyer --> UC_Checkout
+buyer --> UC_BuyerOrders
+buyer --> UC_Reviews
+
+seller --|> guest
+seller --> UC_ManageProducts
+seller --> UC_SellerOrders
+
+admin --> UC_AdminModerate
+admin --> UC_Auth
+
+@enduml

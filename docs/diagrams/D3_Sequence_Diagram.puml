@@ -1,0 +1,84 @@
+@startuml
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+title DjMart - Place Order Sequence Diagram (D3)\nBrowser -> Servlet -> Service -> DAO -> Database
+
+actor "Buyer (Browser)" as Browser
+participant "Encoding & AuthFilter" as Filter
+participant "OrderServlet" as Servlet
+participant "OrderService" as Service
+participant "CartDAO" as CartDAO
+participant "ProductDAO" as ProductDAO
+participant "OrderDAO" as OrderDAO
+database "H2 Database (HikariCP)" as DB
+
+Browser -> Filter : POST /api/v1/checkout (Session cookie, shipping info)
+activate Filter
+
+Filter -> Filter : Validate active session (Buyer role)
+Filter -> Servlet : Forward request
+activate Servlet
+
+Servlet -> Service : placeOrder(buyerId, checkoutDTO)
+activate Service
+
+Service -> CartDAO : getCartItems(buyerId)
+activate CartDAO
+CartDAO -> DB : SELECT * FROM cart_items WHERE user_id = ?
+DB --> CartDAO : return cart items
+CartDAO --> Service : List<CartItem>
+deactivate CartDAO
+
+alt Cart is empty
+    Service --> Servlet : throw ValidationException("Cart is empty")
+    Servlet --> Browser : 400 Bad Request { success: false, error: {...} }
+end
+
+Service -> DB : Connection.setAutoCommit(false) [BEGIN TRANSACTION]
+
+loop For each cart item
+    Service -> ProductDAO : checkAndLockStock(productId, quantity)
+    activate ProductDAO
+    ProductDAO -> DB : SELECT stock_qty, price FROM products WHERE id = ? FOR UPDATE
+    DB --> ProductDAO : Product row
+    ProductDAO --> Service : Product entity
+    deactivate ProductDAO
+
+    alt Insufficient stock
+        Service -> DB : Connection.rollback()
+        Service --> Servlet : throw ConflictException("Insufficient stock")
+        Servlet --> Browser : 409 Conflict { success: false, error: {...} }
+    end
+
+    Service -> ProductDAO : decrementStock(productId, quantity)
+    activate ProductDAO
+    ProductDAO -> DB : UPDATE products SET stock_qty = stock_qty - ? WHERE id = ?
+    ProductDAO --> Service : success
+    deactivate ProductDAO
+end
+
+Service -> OrderDAO : createOrder(order, orderItems)
+activate OrderDAO
+OrderDAO -> DB : INSERT INTO orders (buyer_id, total_amount, status) VALUES (...)
+OrderDAO -> DB : INSERT INTO order_items (...) VALUES (...)
+OrderDAO --> Service : Order entity (with generated ID)
+deactivate OrderDAO
+
+Service -> CartDAO : clearCart(buyerId)
+activate CartDAO
+CartDAO -> DB : DELETE FROM cart_items WHERE user_id = ?
+CartDAO --> Service : success
+deactivate CartDAO
+
+Service -> DB : Connection.commit() [COMMIT TRANSACTION]
+
+Service --> Servlet : OrderResponseDTO
+deactivate Service
+
+Servlet --> Browser : 201 Created { success: true, data: OrderResponseDTO, error: null }
+deactivate Servlet
+deactivate Filter
+
+@enduml

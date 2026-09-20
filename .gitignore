@@ -1,0 +1,29 @@
+# Maven target build output
+target/
+*.war
+*.jar
+
+# Sensitive database configuration & secrets
+config.properties
+.env
+.env.local
+
+# H2 Database files
+data/
+*.mv.db
+*.trace.db
+
+# Logs
+logs/
+*.log
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+bin/
+.DS_Store
+Thumbs.db
