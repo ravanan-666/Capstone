@@ -125,10 +125,13 @@ public class AuthFilter implements Filter {
             if (path.equals("/products") || path.startsWith("/products/")) {
                 return true;
             }
+            if (path.equals("/api/products") || path.startsWith("/api/products/")) {
+                return true;
+            }
             if (path.equals("/api/v1/products") || path.startsWith("/api/v1/products/")) {
                 return true;
             }
-            if (path.startsWith("/api/v1/reviews/product/")) {
+            if (path.startsWith("/api/reviews/product/") || path.startsWith("/api/v1/reviews/product/")) {
                 return true;
             }
         }
@@ -136,34 +139,35 @@ public class AuthFilter implements Filter {
     }
 
     private boolean isAdminPath(String path) {
-        return path.startsWith("/admin") || path.startsWith("/api/v1/admin");
+        return path.startsWith("/admin") || path.startsWith("/api/v1/admin") || path.startsWith("/api/admin");
     }
 
     private boolean isSellerPath(String path, String method) {
-        if (path.startsWith("/seller") || path.startsWith("/api/v1/seller")) {
+        if (path.startsWith("/seller") || path.startsWith("/api/v1/seller") || path.startsWith("/api/seller")) {
             return true;
         }
         // Creating, modifying, deleting products via API
-        if (path.startsWith("/api/v1/products")) {
+        if (path.startsWith("/api/products") || path.startsWith("/api/v1/products")) {
             return "POST".equals(method) || "PUT".equals(method) || "DELETE".equals(method);
         }
         return false;
     }
 
     private boolean isBuyerPath(String path, String method) {
-        if (path.startsWith("/cart") || path.startsWith("/api/v1/cart")) {
+        if (path.startsWith("/cart") || path.startsWith("/api/cart") || path.startsWith("/api/v1/cart")) {
             return true;
         }
-        if (path.startsWith("/checkout") || path.startsWith("/api/v1/checkout")) {
+        if (path.startsWith("/checkout") || path.startsWith("/api/checkout") || path.startsWith("/api/v1/checkout")) {
             return true;
         }
         if (path.equals("/orders") || path.startsWith("/orders/")) {
             return true;
         }
-        if (path.startsWith("/api/v1/orders") && !path.startsWith("/api/v1/orders/seller")) {
+        if ((path.startsWith("/api/orders") || path.startsWith("/api/v1/orders"))
+                && !path.startsWith("/api/orders/seller") && !path.startsWith("/api/v1/orders/seller")) {
             return true;
         }
-        if (path.startsWith("/api/v1/reviews") && "POST".equals(method)) {
+        if ((path.startsWith("/api/reviews") || path.startsWith("/api/v1/reviews")) && "POST".equals(method)) {
             return true;
         }
         return false;

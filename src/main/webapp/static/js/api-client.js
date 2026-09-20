@@ -1,27 +1,57 @@
 /**
  * DjMart API Client
- * Centralized fetch client handling standard response envelopes and error normalization.
+ * Centralized fetch client handling standard response envelopes, CSRF token attachment,
+ * context path resolution, and error normalization.
  */
 const ApiClient = {
+  getContextPath() {
+    const meta = document.querySelector('meta[name="context-path"]');
+    return meta ? meta.getAttribute('content') : '';
+  },
+
+  getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+  },
+
   /**
    * Performs an HTTP request and parses the standard API response envelope.
    *
    * @param {string} url Endpoint URL
-   * @param {object} options Request options (method, headers, body)
-   * @returns {Promise<any>} Resolves with data or rejects with error object
+   * @param {object} options Request options (method, headers, body, signal)
+   * @returns {Promise<any>} Resolves with data or rejects with normalized error object
    */
   async request(url, options = {}) {
-    const defaultHeaders = {
+    const method = (options.method || 'GET').toUpperCase();
+    const headers = {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      ...(options.headers || {})
     };
+
+    // Attach Content-Type for payloads
+    if (options.body && !(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    // Attach CSRF synchronizer token on state-changing methods
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrf = this.getCsrfToken();
+      if (csrf) {
+        headers['X-CSRF-Token'] = csrf;
+      }
+    }
+
+    // Prepend context path if URL starts with slash and not context path
+    const contextPath = this.getContextPath();
+    let finalUrl = url;
+    if (contextPath && url.startsWith('/') && !url.startsWith(contextPath)) {
+      finalUrl = contextPath + url;
+    }
 
     const config = {
       ...options,
-      headers: {
-        ...defaultHeaders,
-        ...(options.headers || {})
-      }
+      method,
+      headers
     };
 
     if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
@@ -29,38 +59,46 @@ const ApiClient = {
     }
 
     try {
-      const response = await fetch(url, config);
-      const envelope = await response.json();
+      const response = await fetch(finalUrl, config);
+      let envelope;
+      const text = await response.text();
+      try {
+        envelope = text ? JSON.parse(text) : {};
+      } catch (jsonErr) {
+        envelope = { success: response.ok, message: text };
+      }
 
-      if (!response.ok || !envelope.success) {
+      if (!response.ok || envelope.success === false) {
         const error = envelope.error || {
-          code: 'HTTP_' + response.status,
-          message: 'An unexpected server error occurred'
+          code: envelope.errorCode || 'HTTP_' + response.status,
+          message: envelope.message || 'An unexpected error occurred'
         };
         error.status = response.status;
         throw error;
       }
 
-      return envelope.data;
+      return envelope.data !== undefined ? envelope.data : envelope;
     } catch (err) {
-      console.error(`[ApiClient Error] ${options.method || 'GET'} ${url}:`, err);
+      if (err.name !== 'AbortError') {
+        console.error(`[ApiClient Error] ${method} ${finalUrl}:`, err);
+      }
       throw err;
     }
   },
 
-  get(url, headers = {}) {
-    return this.request(url, { method: 'GET', headers });
+  get(url, options = {}) {
+    return this.request(url, { ...options, method: 'GET' });
   },
 
-  post(url, body, headers = {}) {
-    return this.request(url, { method: 'POST', body, headers });
+  post(url, body, options = {}) {
+    return this.request(url, { ...options, method: 'POST', body });
   },
 
-  put(url, body, headers = {}) {
-    return this.request(url, { method: 'PUT', body, headers });
+  put(url, body, options = {}) {
+    return this.request(url, { ...options, method: 'PUT', body });
   },
 
-  delete(url, headers = {}) {
-    return this.request(url, { method: 'DELETE', headers });
+  delete(url, options = {}) {
+    return this.request(url, { ...options, method: 'DELETE' });
   }
 };

@@ -39,11 +39,19 @@ public class PageResponse<T> implements Serializable {
         return content;
     }
 
+    public List<T> getData() {
+        return content;
+    }
+
     public void setContent(List<T> content) {
         this.content = content;
     }
 
     public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public int getPage() {
         return pageNumber;
     }
 

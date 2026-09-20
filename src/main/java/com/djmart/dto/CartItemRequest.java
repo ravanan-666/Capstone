@@ -9,6 +9,7 @@ public class CartItemRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private Long cartItemId;
     private Long productId;
     private Integer quantity;
 
@@ -18,6 +19,20 @@ public class CartItemRequest implements Serializable {
     public CartItemRequest(Long productId, Integer quantity) {
         this.productId = productId;
         this.quantity = quantity;
+    }
+
+    public CartItemRequest(Long cartItemId, Long productId, Integer quantity) {
+        this.cartItemId = cartItemId;
+        this.productId = productId;
+        this.quantity = quantity;
+    }
+
+    public Long getCartItemId() {
+        return cartItemId;
+    }
+
+    public void setCartItemId(Long cartItemId) {
+        this.cartItemId = cartItemId;
     }
 
     public Long getProductId() {
@@ -39,7 +54,8 @@ public class CartItemRequest implements Serializable {
     @Override
     public String toString() {
         return "CartItemRequest{" +
-                "productId=" + productId +
+                "cartItemId=" + cartItemId +
+                ", productId=" + productId +
                 ", quantity=" + quantity +
                 '}';
     }

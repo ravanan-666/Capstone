@@ -8,6 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><c:out value="${pageTitle != null ? pageTitle : 'DjMart — Premium Multi-Seller Marketplace'}" /></title>
+    <meta name="csrf-token" content="${sessionScope.csrfToken != null ? sessionScope.csrfToken : csrfToken}">
+    <meta name="context-path" content="${pageContext.request.contextPath}">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,13 +19,24 @@
 <header class="site-header">
     <div class="container">
         <a href="${pageContext.request.contextPath}/" class="brand-logo">Dj<span>Mart</span></a>
-        <nav>
+        
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Navigation" aria-expanded="false">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <nav class="nav-container" id="navContainer">
             <ul class="nav-menu">
-                <li><a href="${pageContext.request.contextPath}/products" class="nav-link">Explore</a></li>
+                <li><a href="${pageContext.request.contextPath}/products" class="nav-link">Explore Products</a></li>
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <c:if test="${sessionScope.user.role == 'BUYER'}">
-                            <li><a href="${pageContext.request.contextPath}/cart" class="nav-link">Cart</a></li>
+                            <li>
+                                <a href="${pageContext.request.contextPath}/cart" class="nav-link cart-link">
+                                    Cart <span id="navCartBadge" class="badge badge-accent"></span>
+                                </a>
+                            </li>
                             <li><a href="${pageContext.request.contextPath}/orders" class="nav-link">My Orders</a></li>
                         </c:if>
                         <c:if test="${sessionScope.user.role == 'SELLER'}">
@@ -35,6 +48,11 @@
                         <li><a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-outline">Logout</a></li>
                     </c:when>
                     <c:otherwise>
+                        <li>
+                            <a href="${pageContext.request.contextPath}/cart" class="nav-link cart-link">
+                                Cart <span id="navCartBadge" class="badge badge-accent"></span>
+                            </a>
+                        </li>
                         <li><a href="${pageContext.request.contextPath}/auth/login" class="nav-link">Sign In</a></li>
                         <li><a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary">Join Marketplace</a></li>
                     </c:otherwise>
@@ -43,4 +61,5 @@
         </nav>
     </div>
 </header>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <main class="main-content">
