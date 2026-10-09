@@ -227,19 +227,12 @@ public final class DatabaseUtil {
      * @param conn active database connection
      */
     public static void applySeedDataIfEmpty(Connection conn) {
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM products")) {
-            if (rs.next() && rs.getInt(1) < 20) {
-                LOGGER.info("Products count is < 20 (found: {}); populating full 24-product seed catalog...", rs.getInt(1));
-                runScript(conn, "db/seed.sql");
-                LOGGER.info("Seed data applied successfully");
-            } else {
-                LOGGER.info("Products table already populated with {} products; skipping seed data", rs.getInt(1));
-            }
-        } catch (SQLException e) {
-            LOGGER.warn("Could not check products table count: {}", e.getMessage());
-            // Attempt seed run
+        try {
+            LOGGER.info("Ensuring all curated products and master data are merged into database...");
             runScript(conn, "db/seed.sql");
+            LOGGER.info("Seed data merged successfully");
+        } catch (Exception e) {
+            LOGGER.warn("Notice while syncing seed data: {}", e.getMessage());
         }
         alignIdentitySequences(conn);
     }
@@ -254,7 +247,7 @@ public final class DatabaseUtil {
     public static void alignIdentitySequences(Connection conn) {
         String[] tables = {
             "users", "categories", "products", "orders", "order_items",
-            "cart_items", "reviews", "chat_conversations", "chat_messages"
+            "cart_items", "reviews", "chat_messages"
         };
 
         try {

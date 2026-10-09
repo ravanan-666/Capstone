@@ -12,6 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * JDBC implementation of ProductDAO.
@@ -365,10 +366,32 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
                                     String keyword, String category,
                                     BigDecimal minPrice, BigDecimal maxPrice) {
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)");
-            String term = "%" + keyword.trim().toLowerCase() + "%";
-            params.add(term);
-            params.add(term);
+            String[] tokens = keyword.trim().toLowerCase().split("\\s+");
+            List<String> cleanTokens = new ArrayList<>();
+            Set<String> stopWords = Set.of(
+                    "the", "a", "an", "in", "on", "at", "of", "for", "to", "is", "are",
+                    "do", "you", "sell", "have", "me", "please", "any", "my", "with",
+                    "and", "or", "what", "how", "much", "exact", "currently", "show",
+                    "can", "tell", "about", "your", "top", "items", "item", "product", "products"
+            );
+            for (String t : tokens) {
+                String clean = t.replaceAll("[^a-zA-Z0-9-]", "");
+                if (clean.length() >= 2 && !stopWords.contains(clean)) {
+                    cleanTokens.add(clean);
+                }
+            }
+            if (cleanTokens.isEmpty()) {
+                cleanTokens.add(keyword.trim().toLowerCase());
+            }
+
+            for (String tok : cleanTokens) {
+                sql.append(" AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(COALESCE(brand, '')) LIKE ? OR LOWER(COALESCE(sku, '')) LIKE ?)");
+                String term = "%" + tok + "%";
+                params.add(term);
+                params.add(term);
+                params.add(term);
+                params.add(term);
+            }
         }
         if (category != null && !category.trim().isEmpty()) {
             sql.append(" AND category = ?");

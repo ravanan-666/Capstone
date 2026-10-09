@@ -30,6 +30,7 @@ import java.io.IOException;
  * order cancellations, and seller/admin status transitions.
  */
 @WebServlet(name = "OrderServlet", urlPatterns = {
+        "/orders",
         "/orders/*",
         "/api/orders/*",
         "/checkout",

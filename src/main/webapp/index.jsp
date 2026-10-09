@@ -2,27 +2,27 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
-<c:set var="pageTitle" value="DJ Mart — Modern Curated E-Commerce & Precision Tech" scope="request"/>
+<c:set var="pageTitle" value="DJ Mart — Online Shopping Marketplace" scope="request"/>
 <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <!-- Hero Section with Search -->
-<section class="hero" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%); color: #ffffff; padding: 5rem 0 4.5rem; position: relative; overflow: hidden;">
+<section class="hero" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 4.5rem 0 4rem; position: relative; overflow: hidden;">
     <div class="container" style="text-align: center; max-width: 860px; position: relative; z-index: 2;">
-        <span style="display: inline-block; text-transform: uppercase; letter-spacing: 2.5px; font-size: 0.8rem; font-weight: 700; color: #60a5fa; margin-bottom: 1.25rem; background: rgba(96, 165, 250, 0.12); padding: 0.35rem 1rem; border-radius: 20px; border: 1px solid rgba(96, 165, 250, 0.25);">
-            Curated Artisanal &amp; Precision Tech Marketplace
+        <span style="display: inline-block; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-weight: 700; color: #60a5fa; margin-bottom: 1rem; background: rgba(96, 165, 250, 0.15); padding: 0.35rem 1rem; border-radius: 20px;">
+            Your Trusted E-Commerce Marketplace
         </span>
-        <h1 style="font-size: 3.4rem; margin-bottom: 1.25rem; letter-spacing: -1px; line-height: 1.15; color: #ffffff;">
-            Crafted for those who demand excellence.
+        <h1 style="font-size: 2.8rem; margin-bottom: 1rem; font-weight: 700; line-height: 1.2; color: #ffffff;">
+            Quality Products at Verified Best Prices
         </h1>
-        <p style="font-size: 1.15rem; color: #94a3b8; margin-bottom: 2.5rem; line-height: 1.7; max-width: 700px; margin-left: auto; margin-right: auto;">
-            Discover verified products across electronics, heirloom fashion, home essentials, and stationery. Guaranteed authentic Indian Rupee market prices with AI-guided assistance.
+        <p style="font-size: 1.1rem; color: #94a3b8; margin-bottom: 2rem; line-height: 1.6; max-width: 680px; margin-left: auto; margin-right: auto;">
+            Shop verified electronics, fashion, kitchenware, books, and fitness essentials in Indian Rupees (₹). Real-time inventory and instant AI assistance.
         </p>
 
         <!-- Quick Search Bar in Hero -->
-        <form action="${pageContext.request.contextPath}/products" method="GET" style="display: flex; max-width: 600px; margin: 0 auto 2.25rem; background: #ffffff; border-radius: 8px; padding: 0.35rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);">
+        <form action="${pageContext.request.contextPath}/products" method="GET" style="display: flex; max-width: 600px; margin: 0 auto 2rem; background: #ffffff; border-radius: 8px; padding: 0.35rem; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
             <input type="text"
                    name="search"
-                   placeholder="Search products, brands (e.g. Sony, Apple, Nike)..."
+                   placeholder="Search products, brands (e.g. Sony, Apple, Nike, Milton)..."
                    style="flex: 1; border: none; outline: none; padding: 0.75rem 1.25rem; font-size: 1rem; color: #0f172a; border-radius: 6px;"
                    autocomplete="off">
             <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem; font-weight: 600;">
@@ -31,11 +31,11 @@
         </form>
 
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="${pageContext.request.contextPath}/products" class="btn btn-accent" style="padding: 0.85rem 2.2rem; font-size: 1rem;">
-                Explore All Products &rarr;
+            <a href="${pageContext.request.contextPath}/products" class="btn btn-accent" style="padding: 0.8rem 2rem; font-size: 0.95rem;">
+                Browse All Products &rarr;
             </a>
-            <button type="button" onclick="document.getElementById('chatToggleBtn').click();" class="btn btn-outline" style="padding: 0.85rem 1.8rem; font-size: 1rem; color: #ffffff; border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05);">
-                ✨ Ask DJ Mart AI
+            <button type="button" onclick="document.getElementById('chatFloatingBtn').click();" class="btn btn-outline" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.08);">
+                💬 Ask DJ Mart AI
             </button>
         </div>
     </div>
@@ -154,7 +154,7 @@
                 Tired of search bars that don't understand you? Our AI chatbot connects directly with live database inventory. Ask for budget recommendations, check item availability, track active orders, or compare products instantly.
             </p>
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <button type="button" onclick="document.getElementById('chatToggleBtn').click();" class="btn btn-primary" style="padding: 0.8rem 1.75rem;">
+                <button type="button" onclick="document.getElementById('chatFloatingBtn').click();" class="btn btn-primary" style="padding: 0.8rem 1.75rem;">
                     Launch AI Chat &rarr;
                 </button>
                 <a href="${pageContext.request.contextPath}/products" class="btn btn-outline" style="background: #fff; padding: 0.8rem 1.5rem;">

@@ -111,7 +111,8 @@ public class AuthFilter implements Filter {
         if (path.equals("/") || path.equals("/index.jsp")) {
             return true;
         }
-        if (path.equals("/auth/login") || path.equals("/auth/register")) {
+        if (path.equals("/auth/login") || path.equals("/auth/register") || path.equals("/auth/logout") ||
+            path.equals("/login") || path.equals("/register") || path.equals("/logout")) {
             return true;
         }
         if (path.equals("/api/v1/auth/login") || path.equals("/api/v1/auth/register")) {

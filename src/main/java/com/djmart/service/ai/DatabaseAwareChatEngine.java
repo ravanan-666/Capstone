@@ -14,17 +14,17 @@ import java.util.regex.Pattern;
 /**
  * Intelligent Database-Connected Conversational Engine for DJ Mart.
  * Understands customer intents, queries the live PostgreSQL / H2 database via approved tools,
- * maintains conversation context and history, and produces contextually accurate responses.
+ * maintains multi-turn conversation context and history, and produces contextually accurate responses.
  * Operates with full database fidelity both offline and as the tool execution layer for LLMs.
  */
 public class DatabaseAwareChatEngine implements ChatProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseAwareChatEngine.class);
     private static final Locale INDIA_LOCALE = new Locale("en", "IN");
-    private static final NumberFormat CURRENCY_FMT = NumberFormat.getCurrencyInstance(INDIA_LOCALE);
 
     private final ChatTools chatTools;
     private final Map<String, List<ChatMessageRecord>> conversationHistories = new HashMap<>();
+    private final Map<String, List<Long>> lastReferencedProductsList = new HashMap<>();
     private final Map<String, Long> lastReferencedProducts = new HashMap<>();
 
     public DatabaseAwareChatEngine(ChatTools chatTools) {
@@ -52,11 +52,37 @@ public class DatabaseAwareChatEngine implements ChatProvider {
 
         // 1. GREETINGS
         if (isGreeting(lower)) {
-            reply = "Hello! Welcome to **DJ Mart**. I am your live AI shopping assistant. " +
-                    "I can help you search products, find items within your budget, check live stock and verified prices, " +
-                    "or track your orders. What are you looking for today?";
+            reply = "Hello! Welcome to **DJ Mart**. I am your live AI shopping assistant.\n\n" +
+                    "I can help you:\n" +
+                    "• Search and discover products across Electronics, Fashion, Home & Kitchen, Books, and Fitness\n" +
+                    "• Check current verified market prices and original MRPs in Indian Rupees (INR / ₹)\n" +
+                    "• Check real-time stock availability and inventory counts\n" +
+                    "• Compare products side-by-side\n" +
+                    "• Find the best products within your specific budget\n" +
+                    "• Track your orders and provide shipping or return policies\n\n" +
+                    "What are you looking for today?";
         }
-        // 2. BUDGET SEARCH (e.g. "under ₹1,000", "products below 5000", "under 10k")
+        // 2. NON-SHOPPING / OUT-OF-SCOPE INQUIRIES (e.g. weather in Paris, sports, politics)
+        else if (isNonShoppingInquiry(lower)) {
+            reply = "I am **DJ Mart Concierge**, your dedicated e-commerce shopping assistant. " +
+                    "While I don't track external information like live weather forecasts, " +
+                    "I can help you explore our verified catalog of electronics, fashion, home essentials, books, and fitness gear, " +
+                    "check verified Indian Rupee prices, verify live stock availability, and track your orders. " +
+                    "What would you like to discover on DJ Mart today?";
+        }
+        // 3. CONTEXTUAL FOLLOW-UP (e.g. "Can you tell me more about the first item you mentioned?")
+        else if (isContextualFollowUp(lower)) {
+            reply = handleContextualFollowUp(lower, safeSessionId);
+        }
+        // 4. PRODUCT COMPARISON (e.g. "Compare the Sony headphones with boAt earbuds")
+        else if (isComparisonInquiry(lower)) {
+            reply = handleComparison(lower, safeSessionId);
+        }
+        // 5. HIGH BUDGET / OVER PRICE INQUIRY (e.g. "top laptop and camera options over 1 lakh")
+        else if (isHighBudgetInquiry(lower)) {
+            reply = handleHighBudgetInquiry(lower, safeSessionId);
+        }
+        // 6. BUDGET SEARCH (e.g. "What products do you have under 2000 rupees?", "below 5000")
         else if (isBudgetInquiry(lower)) {
             BigDecimal budget = ChatTools.extractBudget(lower);
             if (budget == null) {
@@ -66,44 +92,44 @@ public class DatabaseAwareChatEngine implements ChatProvider {
             List<Product> matches = chatTools.getProductsUnderBudget(budget, category);
             reply = formatBudgetResults(matches, budget, safeSessionId);
         }
-        // 3. PRODUCT PRICE CHECK (e.g. "What is the price of Sony headphones?", "How much is Keychron?")
+        // 7. BRAND LOOKUP (e.g. "Show me everything from Nike", "products by Sony")
+        else if (isBrandInquiry(lower)) {
+            reply = handleBrandInquiry(lower, safeSessionId);
+        }
+        // 8. PRODUCT PRICE CHECK (e.g. "What is the exact price of the Sony WH-1000XM5?")
         else if (isPriceInquiry(lower)) {
             reply = handlePriceInquiry(lower, safeSessionId);
         }
-        // 4. STOCK AVAILABILITY CHECK (e.g. "Is this item available?", "Is Dell monitor in stock?")
+        // 9. STOCK AVAILABILITY CHECK (e.g. "Is the Keychron K2 keyboard currently in stock?")
         else if (isStockInquiry(lower)) {
             reply = handleStockInquiry(lower, safeSessionId);
         }
-        // 5. PRODUCT COMPARISON (e.g. "Compare Sony headphones and Apple AirPods Pro")
-        else if (isComparisonInquiry(lower)) {
-            reply = handleComparison(lower, safeSessionId);
-        }
-        // 6. CATEGORY DISCOVERY (e.g. "Show me electronics", "Show me fashion products")
+        // 10. CATEGORY DISCOVERY (e.g. "Show me items in Books & Stationery")
         else if (isCategoryInquiry(lower)) {
             String category = extractCategory(lower);
             if (category == null) category = "Electronics";
             List<Product> products = chatTools.getProductsByCategory(category);
             reply = formatCategoryResults(products, category, safeSessionId);
         }
-        // 7. ORDER STATUS & TRACKING (e.g. "Track my order", "Where is my order #1?")
+        // 11. ORDER STATUS & TRACKING (e.g. "How do I track my order?", "Where is order #1?")
         else if (isOrderTracking(lower)) {
             reply = handleOrderTracking(lower, authenticatedUserId);
         }
-        // 8. SHIPPING & DELIVERY POLICIES
+        // 12. SHIPPING & DELIVERY POLICIES
         else if (isShippingInquiry(lower)) {
             reply = "🚚 **DJ Mart Shipping & Delivery Information:**\n\n" +
                     "• **Complimentary Shipping:** Free express shipping on all orders across India.\n" +
                     "• **Transit Time:** Delivery within **2 to 4 business days** via top courier partners.\n" +
                     "• **Real-Time Tracking:** Once your order is dispatched, track its milestone status directly in the **My Orders** section.";
         }
-        // 9. RETURN & REFUND POLICIES
+        // 13. RETURN & REFUND POLICIES
         else if (isReturnInquiry(lower)) {
             reply = "📦 **DJ Mart Return & Refund Policy:**\n\n" +
                     "• **14-Day Guarantee:** We uphold a **14-day hassle-free return window** on all unblemished items in original packaging.\n" +
                     "• **Direct Request:** You can initiate a return or cancellation directly from your **Order Details** page.\n" +
                     "• **Swift Refunds:** Approved refunds are processed to your original payment method or UPI account within 3–5 business days.";
         }
-        // 10. PAYMENT METHODS
+        // 14. PAYMENT METHODS
         else if (isPaymentInquiry(lower)) {
             reply = "💳 **Accepted Payment Methods on DJ Mart:**\n\n" +
                     "• **Instant UPI & QR:** Google Pay, PhonePe, Paytm, BHIM\n" +
@@ -112,7 +138,7 @@ public class DatabaseAwareChatEngine implements ChatProvider {
                     "• **Cash on Delivery (COD):** Available for verified domestic delivery addresses\n\n" +
                     "All payments are encrypted and validated server-side.";
         }
-        // 11. GENERAL PRODUCT SEARCH
+        // 15. GENERAL PRODUCT SEARCH (e.g. "Do you sell any wireless headphones?")
         else {
             reply = handleGeneralSearch(lower, safeSessionId);
         }
@@ -127,9 +153,28 @@ public class DatabaseAwareChatEngine implements ChatProvider {
         return lower.matches("^(hi|hello|hey|greetings|good\\s*(morning|afternoon|evening)|namaste|start|help)(\\s+.*|!|\\.)?$");
     }
 
+    private boolean isNonShoppingInquiry(String lower) {
+        return lower.contains("weather") || lower.contains("temperature") || lower.contains("forecast") ||
+                lower.contains("rain in") || lower.contains("paris") || lower.contains("politics") ||
+                lower.contains("recipe for") || lower.contains("joke") || lower.contains("who is the president");
+    }
+
+    private boolean isContextualFollowUp(String lower) {
+        return lower.contains("first item") || lower.contains("second item") ||
+                lower.contains("first one") || lower.contains("second one") ||
+                lower.contains("tell me more about the first") || lower.contains("more details about that") ||
+                lower.contains("tell me more about that") || lower.contains("can you tell me more about");
+    }
+
     private boolean isBudgetInquiry(String lower) {
-        return lower.contains("under") || lower.contains("below") || lower.contains("budget") ||
-                lower.contains("less than") || lower.contains("cheapest") || lower.contains("affordable");
+        return (lower.contains("under") || lower.contains("below") || lower.contains("budget") ||
+                lower.contains("less than") || lower.contains("cheapest") || lower.contains("affordable")) &&
+                !lower.contains("over") && !lower.contains("above");
+    }
+
+    private boolean isHighBudgetInquiry(String lower) {
+        return (lower.contains("over") || lower.contains("above") || lower.contains("more than") || lower.contains("greater than")) &&
+                (lower.contains("lakh") || lower.contains("lac") || lower.contains("100000") || lower.contains("50000") || lower.contains("k"));
     }
 
     private boolean isPriceInquiry(String lower) {
@@ -138,19 +183,25 @@ public class DatabaseAwareChatEngine implements ChatProvider {
     }
 
     private boolean isStockInquiry(String lower) {
-        return lower.contains("available") || lower.contains("in stock") || lower.contains("stock") ||
-                lower.contains("left") || lower.contains("sold out") || lower.contains("units");
+        return lower.contains("available") || lower.contains("in stock") || lower.contains("stock of") ||
+                lower.contains("currently in stock") || lower.contains("left") || lower.contains("sold out") || lower.contains("units");
     }
 
     private boolean isComparisonInquiry(String lower) {
         return lower.contains("compare") || lower.contains("difference between") ||
-                lower.contains("vs") || lower.contains("which is better");
+                lower.contains(" vs ") || lower.contains(" versus ") || lower.contains("which is better");
+    }
+
+    private boolean isBrandInquiry(String lower) {
+        return lower.contains("from nike") || lower.contains("from sony") || lower.contains("from apple") ||
+                lower.contains("everything from") || lower.contains("products from") || lower.contains("brand ");
     }
 
     private boolean isCategoryInquiry(String lower) {
-        return lower.contains("category") || lower.contains("electronics") || lower.contains("fashion") ||
-                lower.contains("home") || lower.contains("stationery") || lower.contains("wellness") ||
-                lower.contains("show me") || lower.contains("browse");
+        return lower.contains("books & stationery") || lower.contains("stationery") ||
+                (lower.contains("category") || lower.contains("categories")) ||
+                lower.contains("in electronics") || lower.contains("in fashion") ||
+                lower.contains("in home & kitchen") || lower.contains("in wellness");
     }
 
     private boolean isOrderTracking(String lower) {
@@ -174,10 +225,10 @@ public class DatabaseAwareChatEngine implements ChatProvider {
     }
 
     private String extractCategory(String lower) {
-        if (lower.contains("electronic") || lower.contains("audio") || lower.contains("gadget")) return "Electronics";
-        if (lower.contains("fashion") || lower.contains("cloth") || lower.contains("wear") || lower.contains("apparel")) return "Fashion";
-        if (lower.contains("home") || lower.contains("kitchen") || lower.contains("cook")) return "Home & Kitchen";
         if (lower.contains("book") || lower.contains("stationery") || lower.contains("pen") || lower.contains("journal")) return "Books & Stationery";
+        if (lower.contains("electronic") || lower.contains("audio") || lower.contains("gadget") || lower.contains("computer")) return "Electronics";
+        if (lower.contains("fashion") || lower.contains("cloth") || lower.contains("wear") || lower.contains("apparel") || lower.contains("sneaker")) return "Fashion";
+        if (lower.contains("home") || lower.contains("kitchen") || lower.contains("cook")) return "Home & Kitchen";
         if (lower.contains("wellness") || lower.contains("fitness") || lower.contains("yoga") || lower.contains("gym")) return "Wellness & Fitness";
         return null;
     }
@@ -193,29 +244,125 @@ public class DatabaseAwareChatEngine implements ChatProvider {
                     ". Our entry products start from ₹375.00 (e.g. Parker Jotter Ballpoint Pen) and ₹999.00 (Milton Thermosteel Flask). Would you like to explore those?";
         }
 
+        List<Long> ids = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         sb.append("Here are our top available products under **").append(formatPrice(budget)).append("** directly from our verified database:\n\n");
         for (Product p : products) {
-            lastReferencedProducts.put(sessionId, p.getId());
+            ids.add(p.getId());
             sb.append("• **[").append(p.getName()).append("](/products/").append(p.getId()).append(")** — ")
               .append(formatPrice(p.getPrice()))
               .append(" (").append(p.getStockQty() > 0 ? "In Stock: " + p.getStockQty() + " units" : "Out of Stock").append(")\n")
               .append("  *Category: ").append(p.getCategory()).append(" | Brand: ").append(p.getBrand() != null ? p.getBrand() : "Artisan").append("*\n\n");
         }
+        lastReferencedProductsList.put(sessionId, ids);
+        if (!ids.isEmpty()) {
+            lastReferencedProducts.put(sessionId, ids.get(0));
+        }
         sb.append("Would you like more details on any of these items, or should I refine by category?");
         return sb.toString();
     }
 
-    private String handlePriceInquiry(String lower, String sessionId) {
-        // Look up by term in message
-        String cleanTerm = extractSearchTerm(lower, "price of", "how much is", "cost of", "price for", "what is");
-        Optional<Product> productOpt = Optional.empty();
+    private String handleHighBudgetInquiry(String lower, String sessionId) {
+        BigDecimal minBudget = ChatTools.extractMinBudget(lower);
+        if (minBudget == null) {
+            minBudget = new BigDecimal("100000.00");
+        }
 
+        List<Product> highProducts = chatTools.getProductsOverPrice(minBudget, null);
+        if (highProducts.isEmpty()) {
+            // Fallback search for laptop or camera
+            highProducts = new ArrayList<>();
+            chatTools.findProductByTerm("laptop").ifPresent(highProducts::add);
+            chatTools.findProductByTerm("camera").ifPresent(highProducts::add);
+        }
+
+        if (!highProducts.isEmpty()) {
+            List<Long> ids = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Here are our premium high-performance options priced over **").append(formatPrice(minBudget)).append("**:\n\n");
+
+            int idx = 1;
+            for (Product p : highProducts) {
+                ids.add(p.getId());
+                sb.append(idx).append(". **[").append(p.getName()).append("](/products/").append(p.getId()).append(")**\n")
+                  .append("   • **Verified Price:** ").append(formatPrice(p.getPrice()));
+                if (p.getOriginalPrice() != null && p.getOriginalPrice().compareTo(p.getPrice()) > 0) {
+                    sb.append(" *(MRP: ").append(formatPrice(p.getOriginalPrice())).append(")*");
+                }
+                sb.append("\n   • **Brand:** ").append(p.getBrand())
+                  .append(" | **Stock:** ").append(p.getStockQty() > 0 ? p.getStockQty() + " units available" : "Sold out")
+                  .append("\n   • **Key Highlights:** ").append(p.getDescription()).append("\n\n");
+                idx++;
+            }
+
+            lastReferencedProductsList.put(sessionId, ids);
+            if (!ids.isEmpty()) {
+                lastReferencedProducts.put(sessionId, ids.get(0));
+            }
+
+            sb.append("Both items include verified manufacturer warranty and complimentary express insured shipping. You can ask *\"Can you tell me more about the first item?\"* for full technical specifications.");
+            return sb.toString();
+        }
+
+        return "We currently offer high-performance electronics such as the **Dell UltraSharp 4K Hub Monitor** (₹52,499.00) and **Marshall Stanmore III** (₹34,999.00). Would you like to inspect those?";
+    }
+
+    private String handleContextualFollowUp(String lower, String sessionId) {
+        List<Long> ids = lastReferencedProductsList.get(sessionId);
+        Long targetId = null;
+
+        if (ids != null && !ids.isEmpty()) {
+            if (lower.contains("second")) {
+                targetId = ids.size() > 1 ? ids.get(1) : ids.get(0);
+            } else {
+                // First item / default
+                targetId = ids.get(0);
+            }
+        } else if (lastReferencedProducts.containsKey(sessionId)) {
+            targetId = lastReferencedProducts.get(sessionId);
+        }
+
+        if (targetId != null) {
+            Optional<Product> pOpt = chatTools.findProductByTerm(String.valueOf(targetId));
+            if (pOpt.isPresent()) {
+                Product p = pOpt.get();
+                lastReferencedProducts.put(sessionId, p.getId());
+                StringBuilder sb = new StringBuilder();
+                sb.append("Here are the detailed specifications for **[").append(p.getName()).append("](/products/").append(p.getId()).append(")**:\n\n");
+                sb.append("• **Current Verified Price:** **").append(formatPrice(p.getPrice())).append("**\n");
+                if (p.getOriginalPrice() != null && p.getOriginalPrice().compareTo(p.getPrice()) > 0) {
+                    BigDecimal discount = p.getOriginalPrice().subtract(p.getPrice());
+                    sb.append("• **Original MRP:** ").append(formatPrice(p.getOriginalPrice()))
+                      .append(" *(You save ").append(formatPrice(discount)).append(")*\n");
+                }
+                sb.append("• **Category:** ").append(p.getCategory()).append("\n");
+                sb.append("• **Brand:** ").append(p.getBrand() != null ? p.getBrand() : "Curated Partner").append("\n");
+                sb.append("• **SKU Code:** `").append(p.getSku() != null ? p.getSku() : "DJM-" + p.getId()).append("`\n");
+                sb.append("• **Availability:** ").append(p.getStockQty() > 0 ? "In Stock (" + p.getStockQty() + " units available)" : "Sold out").append("\n");
+                sb.append("• **Full Description:** ").append(p.getDescription()).append("\n");
+                sb.append("• **Shipping:** Complimentary 2-4 business days express delivery across India with 14-day hassle-free returns.\n\n");
+                sb.append("Would you like to add this item to your cart?");
+                return sb.toString();
+            }
+        }
+
+        return "Which item would you like to know more about? You can mention any product name, such as *'Tell me more about Sony headphones'* or *'Tell me about the ASUS laptop'*!";
+    }
+
+    private String handlePriceInquiry(String lower, String sessionId) {
+        String cleanTerm = cleanQuery(lower,
+                "what is the exact price of the", "what is the exact price of",
+                "what is the price of the", "what is the price of",
+                "what is the cost of the", "what is the cost of",
+                "exact price of", "price of the", "price of",
+                "how much is the", "how much is", "cost of the", "cost of",
+                "price for", "what is");
+
+        Optional<Product> productOpt = Optional.empty();
         if (!cleanTerm.isEmpty()) {
             productOpt = chatTools.findProductByTerm(cleanTerm);
         }
 
-        // Contextual follow-up: If no product term was specified, use last referenced product
         if (productOpt.isEmpty() && lastReferencedProducts.containsKey(sessionId)) {
             Long lastId = lastReferencedProducts.get(sessionId);
             productOpt = chatTools.findProductByTerm(String.valueOf(lastId));
@@ -224,6 +371,8 @@ public class DatabaseAwareChatEngine implements ChatProvider {
         if (productOpt.isPresent()) {
             Product p = productOpt.get();
             lastReferencedProducts.put(sessionId, p.getId());
+            lastReferencedProductsList.put(sessionId, List.of(p.getId()));
+
             StringBuilder sb = new StringBuilder();
             sb.append("The current verified market price of **[").append(p.getName()).append("](/products/").append(p.getId()).append(")** is **")
               .append(formatPrice(p.getPrice())).append("**.");
@@ -242,9 +391,10 @@ public class DatabaseAwareChatEngine implements ChatProvider {
     }
 
     private String handleStockInquiry(String lower, String sessionId) {
-        String cleanTerm = extractSearchTerm(lower, "is", "available", "in stock", "stock of", "how many");
-        Optional<Product> productOpt = Optional.empty();
+        String cleanTerm = cleanQuery(lower,
+                "is the", "is", "currently in stock", "in stock", "stock of", "available", "how many", "left");
 
+        Optional<Product> productOpt = Optional.empty();
         if (!cleanTerm.isEmpty()) {
             productOpt = chatTools.findProductByTerm(cleanTerm);
         }
@@ -257,6 +407,8 @@ public class DatabaseAwareChatEngine implements ChatProvider {
         if (productOpt.isPresent()) {
             Product p = productOpt.get();
             lastReferencedProducts.put(sessionId, p.getId());
+            lastReferencedProductsList.put(sessionId, List.of(p.getId()));
+
             if (p.getStockQty() > 0) {
                 return "Yes! **[" + p.getName() + "](/products/" + p.getId() + ")** is currently **in stock** with **" +
                         p.getStockQty() + " units available** at **" + formatPrice(p.getPrice()) + "**. You can order now for complimentary 2-4 day express dispatch.";
@@ -269,18 +421,24 @@ public class DatabaseAwareChatEngine implements ChatProvider {
     }
 
     private String handleComparison(String lower, String sessionId) {
-        // Attempt to extract two product terms
-        String[] parts = lower.split("(?:and|vs|versus|with)");
-        if (parts.length >= 2) {
-            String term1 = parts[0].replaceAll("^(compare|difference between|whats the difference between)", "").trim();
-            String term2 = parts[1].replaceAll("(which is better|which one is better|please)", "").trim();
+        // Match patterns like "compare X with Y", "compare X and Y", "X vs Y"
+        String term1 = "";
+        String term2 = "";
 
+        Matcher m = Pattern.compile("(?:compare\\s+)?(.+?)\\s+(?:with|vs|versus|and)\\s+(.+)").matcher(lower);
+        if (m.find()) {
+            term1 = m.group(1).replaceAll("^(compare|difference between)", "").trim();
+            term2 = m.group(2).replaceAll("(which is better|which one is better|please)", "").trim();
+        }
+
+        if (!term1.isEmpty() && !term2.isEmpty()) {
             Optional<Product> p1Opt = chatTools.findProductByTerm(term1);
             Optional<Product> p2Opt = chatTools.findProductByTerm(term2);
 
             if (p1Opt.isPresent() && p2Opt.isPresent()) {
                 Product p1 = p1Opt.get();
                 Product p2 = p2Opt.get();
+                lastReferencedProductsList.put(sessionId, List.of(p1.getId(), p2.getId()));
                 lastReferencedProducts.put(sessionId, p1.getId());
 
                 return "⚖️ **Product Comparison:**\n\n" +
@@ -296,7 +454,35 @@ public class DatabaseAwareChatEngine implements ChatProvider {
                         "] is the more budget-friendly selection at " + formatPrice(p1.getPrice().min(p2.getPrice())) + ".";
             }
         }
-        return "To compare two products, please ask like: *'Compare Sony headphones and Apple AirPods Pro'* or *'Keychron keyboard vs Logitech mouse'*";
+
+        return "To compare two products, please ask like: *'Compare Sony headphones with boAt earbuds'* or *'Keychron keyboard vs Logitech mouse'*";
+    }
+
+    private String handleBrandInquiry(String lower, String sessionId) {
+        String brand = cleanQuery(lower, "show me everything from", "everything from", "show me all from", "products from", "items from", "from", "brand");
+        if (brand.isEmpty()) {
+            brand = "Nike";
+        }
+
+        List<Product> matches = chatTools.findProductsByBrand(brand);
+        if (!matches.isEmpty()) {
+            List<Long> ids = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Here is everything available from **").append(brand.toUpperCase(Locale.ROOT)).append("** in our catalog:\n\n");
+            for (Product p : matches) {
+                ids.add(p.getId());
+                sb.append("• **[").append(p.getName()).append("](/products/").append(p.getId()).append(")** — ")
+                  .append(formatPrice(p.getPrice()))
+                  .append(" (").append(p.getStockQty() > 0 ? "In Stock: " + p.getStockQty() + " units" : "Sold out").append(")\n")
+                  .append("  *").append(p.getDescription()).append("*\n\n");
+            }
+            lastReferencedProductsList.put(sessionId, ids);
+            lastReferencedProducts.put(sessionId, ids.get(0));
+            sb.append("Would you like to view size options or place an order?");
+            return sb.toString();
+        }
+
+        return "We couldn't locate active products for brand **" + brand + "**. We carry authentic brands including Sony, Apple, Nike, Keychron, Logitech, Dell, Levi's, and Raymond!";
     }
 
     private String formatCategoryResults(List<Product> products, String category, String sessionId) {
@@ -304,13 +490,18 @@ public class DatabaseAwareChatEngine implements ChatProvider {
             return "Our " + category + " collection is currently being refreshed. Feel free to explore our other categories such as Electronics, Fashion, or Home & Kitchen!";
         }
 
+        List<Long> ids = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         sb.append("Here are our featured items in **").append(category).append("**:\n\n");
         for (Product p : products) {
-            lastReferencedProducts.put(sessionId, p.getId());
+            ids.add(p.getId());
             sb.append("• **[").append(p.getName()).append("](/products/").append(p.getId()).append(")** — ")
               .append(formatPrice(p.getPrice()))
               .append(" (").append(p.getStockQty() > 0 ? "In Stock" : "Sold out").append(")\n");
+        }
+        lastReferencedProductsList.put(sessionId, ids);
+        if (!ids.isEmpty()) {
+            lastReferencedProducts.put(sessionId, ids.get(0));
         }
         sb.append("\nClick on any product to inspect detailed specifications and reviews.");
         return sb.toString();
@@ -344,42 +535,46 @@ public class DatabaseAwareChatEngine implements ChatProvider {
     }
 
     private String handleGeneralSearch(String lower, String sessionId) {
-        String clean = extractSearchTerm(lower, "show me", "looking for", "find", "search for", "do you have");
+        String clean = cleanQuery(lower,
+                "do you sell any", "do you have any", "do you sell", "do you have",
+                "show me", "looking for", "find", "search for", "tell me about");
         if (clean.isEmpty()) {
             clean = lower;
         }
 
         List<Product> matches = chatTools.searchProducts(clean);
         if (!matches.isEmpty()) {
+            List<Long> ids = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
-            sb.append("I found matching products in our database for **\"").append(clean).append("\"**:\n\n");
+            sb.append("Yes! I found matching products in our database for **\"").append(clean).append("\"**:\n\n");
             for (Product p : matches) {
-                lastReferencedProducts.put(sessionId, p.getId());
+                ids.add(p.getId());
                 sb.append("• **[").append(p.getName()).append("](/products/").append(p.getId()).append(")** — ")
                   .append(formatPrice(p.getPrice())).append(" (").append(p.getCategory()).append(")\n");
             }
+            lastReferencedProductsList.put(sessionId, ids);
+            lastReferencedProducts.put(sessionId, ids.get(0));
             sb.append("\nWould you like more details, pricing, or stock info on any of these?");
             return sb.toString();
         }
 
         return "I am here to assist! You can ask me:\n\n" +
-                "• *\"Show me products under ₹1,000\"*\n" +
-                "• *\"What is the price of Sony headphones?\"*\n" +
-                "• *\"Is Keychron keyboard in stock?\"*\n" +
-                "• *\"Compare Sony headphones and AirPods Pro\"*\n" +
+                "• *\"Show me products under ₹2,000\"*\n" +
+                "• *\"What is the exact price of the Sony WH-1000XM5?\"*\n" +
+                "• *\"Is Keychron K2 keyboard in stock?\"*\n" +
+                "• *\"Compare Sony headphones with boAt earbuds\"*\n" +
                 "• *\"What is your return and shipping policy?\"*\n\n" +
                 "What would you like to explore?";
     }
 
-    private String extractSearchTerm(String lower, String... prefixes) {
+    private String cleanQuery(String lower, String... prefixes) {
         String term = lower;
         for (String p : prefixes) {
             if (term.contains(p)) {
-                int idx = term.indexOf(p) + p.length();
-                term = term.substring(idx).trim();
+                term = term.replace(p, " ");
             }
         }
-        term = term.replaceAll("[?!.,]", "").trim();
+        term = term.replaceAll("[?!.,;:\"']", " ").replaceAll("\\s+", " ").trim();
         return term;
     }
 

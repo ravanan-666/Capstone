@@ -99,6 +99,8 @@ public class CsrfFilter implements Filter {
                path.equals("/api/v1/auth/register") ||
                path.equals("/auth/login") ||
                path.equals("/auth/register") ||
+               path.equals("/login") ||
+               path.equals("/register") ||
                path.equals("/api/chat") ||
                path.equals("/api/v1/chat") ||
                path.startsWith("/h2-console");

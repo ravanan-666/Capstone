@@ -33,6 +33,7 @@ import java.util.Map;
  * and seller-specific order fulfillment.
  */
 @WebServlet(name = "SellerServlet", urlPatterns = {
+        "/seller",
         "/seller/*",
         "/api/seller/*",
         "/api/v1/seller/*"

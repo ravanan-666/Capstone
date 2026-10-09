@@ -7,7 +7,7 @@
             </a>
             <div>
                 <p style="margin: 0; font-weight: 600;">&copy; 2026 DJ Mart Inc. All rights reserved.</p>
-                <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #90a4ae;">Anna University R2025 Semester 3 Capstone Demonstration</p>
+                <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #90a4ae;">Quality products at verified prices</p>
             </div>
         </div>
         <div>

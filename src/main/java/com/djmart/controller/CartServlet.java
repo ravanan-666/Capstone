@@ -22,7 +22,7 @@ import java.io.IOException;
  * Controller orchestrating shopping cart interactions, inventory validation,
  * quantity adjustments, and server-authoritative totals.
  */
-@WebServlet(name = "CartServlet", urlPatterns = {"/cart/*", "/api/cart/*", "/api/v1/cart/*"})
+@WebServlet(name = "CartServlet", urlPatterns = {"/cart", "/cart/*", "/api/cart/*", "/api/v1/cart/*"})
 public class CartServlet extends BaseServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CartServlet.class);

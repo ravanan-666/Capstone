@@ -34,7 +34,7 @@
 
         <nav class="nav-container" id="navContainer">
             <ul class="nav-menu">
-                <li><a href="${pageContext.request.contextPath}/products" class="nav-link">Explore Products</a></li>
+                <li><a href="${pageContext.request.contextPath}/products" class="nav-link">Products</a></li>
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <c:if test="${sessionScope.user.role == 'BUYER'}">
@@ -60,8 +60,8 @@
                                 Cart <span id="navCartBadge" class="badge badge-accent"></span>
                             </a>
                         </li>
-                        <li><a href="${pageContext.request.contextPath}/auth/login" class="nav-link">Sign In</a></li>
-                        <li><a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary">Join Marketplace</a></li>
+                        <li><a href="${pageContext.request.contextPath}/auth/login" class="nav-link">Login</a></li>
+                        <li><a href="${pageContext.request.contextPath}/auth/register" class="btn btn-primary">Register</a></li>
                     </c:otherwise>
                 </c:choose>
             </ul>

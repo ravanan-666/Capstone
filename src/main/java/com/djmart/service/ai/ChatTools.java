@@ -61,13 +61,39 @@ public class ChatTools {
     }
 
     /**
-     * Looks up specific product details by name or keyword match.
+     * Searches database for products with price at or above given minimum threshold.
+     */
+    public List<Product> getProductsOverPrice(BigDecimal minPrice, String category) {
+        if (minPrice == null || minPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            minPrice = new BigDecimal("100000.00");
+        }
+        return productDAO.search(null, category, minPrice, null, "price", "DESC", 0, 5);
+    }
+
+    /**
+     * Finds products listed under a specific brand.
+     */
+    public List<Product> findProductsByBrand(String brand) {
+        if (brand == null || brand.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return productDAO.search(brand.trim(), null, null, null, "price", "DESC", 0, 10);
+    }
+
+    /**
+     * Looks up specific product details by name, brand, SKU or keyword match.
      */
     public Optional<Product> findProductByTerm(String term) {
         if (term == null || term.trim().isEmpty()) {
             return Optional.empty();
         }
-        List<Product> matches = productDAO.search(term.trim(), null, null, null, "created_at", "DESC", 0, 1);
+        String clean = term.trim();
+        if (clean.matches("^\\d+$")) {
+            try {
+                return productDAO.findById(Long.parseLong(clean));
+            } catch (Exception ignored) {}
+        }
+        List<Product> matches = productDAO.search(clean, null, null, null, "price", "DESC", 0, 1);
         if (!matches.isEmpty()) {
             return Optional.of(matches.get(0));
         }
@@ -105,11 +131,20 @@ public class ChatTools {
     }
 
     /**
-     * Extracts numerical budget amount from a user message (e.g. "under ₹1,000", "below 5000", "under 10k").
+     * Extracts numerical budget amount from a user message (e.g. "under ₹1,000", "below 5000", "under 10k", "under 1 lakh").
      */
     public static BigDecimal extractBudget(String message) {
         if (message == null) return null;
         String lower = message.toLowerCase();
+
+        // Check for "lakh" notation e.g. "1 lakh", "2 lakh"
+        Matcher lakhMatcher = Pattern.compile("(?:under|below|less than|budget of|within)?\\s*(?:₹|rs\\.?|inr)?\\s*(\\d+(?:\\.\\d+)?)\\s*(?:lakh|lac|l)\\b").matcher(lower);
+        if (lakhMatcher.find()) {
+            try {
+                double val = Double.parseDouble(lakhMatcher.group(1)) * 100000.0;
+                return BigDecimal.valueOf(val);
+            } catch (Exception ignored) {}
+        }
 
         // Check for "k" notation e.g. "10k", "5k"
         Matcher kMatcher = Pattern.compile("(?:under|below|less than|budget of|within)?\\s*(?:₹|rs\\.?|inr)?\\s*(\\d+(?:\\.\\d+)?)\\s*k\\b").matcher(lower);
@@ -129,7 +164,15 @@ public class ChatTools {
             } catch (Exception ignored) {}
         }
 
-        // Check for general rupee mention
+        // Check for general rupee mention e.g. "2000 rupees", "₹2000"
+        Matcher rupeeWord = Pattern.compile("(\\d[\\d,]*)\\s*(?:rupees|rs|inr|buck)").matcher(lower);
+        if (rupeeWord.find()) {
+            try {
+                String clean = rupeeWord.group(1).replace(",", "");
+                return new BigDecimal(clean);
+            } catch (Exception ignored) {}
+        }
+
         Matcher generalRupee = Pattern.compile("(?:₹|rs\\.?|inr)\\s*(\\d[\\d,]*(?:\\.\\d+)?)").matcher(lower);
         if (generalRupee.find()) {
             try {
@@ -138,6 +181,39 @@ public class ChatTools {
             } catch (Exception ignored) {}
         }
 
+        return null;
+    }
+
+    /**
+     * Extracts minimum budget threshold for queries like "over 1 lakh", "above 50000".
+     */
+    public static BigDecimal extractMinBudget(String message) {
+        if (message == null) return null;
+        String lower = message.toLowerCase();
+
+        Matcher lakhMatcher = Pattern.compile("(?:over|above|greater than|more than)?\\s*(?:₹|rs\\.?|inr)?\\s*(\\d+(?:\\.\\d+)?)\\s*(?:lakh|lac|l)\\b").matcher(lower);
+        if (lakhMatcher.find()) {
+            try {
+                double val = Double.parseDouble(lakhMatcher.group(1)) * 100000.0;
+                return BigDecimal.valueOf(val);
+            } catch (Exception ignored) {}
+        }
+
+        Matcher kMatcher = Pattern.compile("(?:over|above|greater than|more than)\\s*(?:₹|rs\\.?|inr)?\\s*(\\d+(?:\\.\\d+)?)\\s*k\\b").matcher(lower);
+        if (kMatcher.find()) {
+            try {
+                double val = Double.parseDouble(kMatcher.group(1)) * 1000.0;
+                return BigDecimal.valueOf(val);
+            } catch (Exception ignored) {}
+        }
+
+        Matcher numMatcher = Pattern.compile("(?:over|above|greater than|more than)\\s*(?:₹|rs\\.?|inr)?\\s*(\\d[\\d,]*(?:\\.\\d+)?)").matcher(lower);
+        if (numMatcher.find()) {
+            try {
+                String clean = numMatcher.group(1).replace(",", "");
+                return new BigDecimal(clean);
+            } catch (Exception ignored) {}
+        }
         return null;
     }
 }

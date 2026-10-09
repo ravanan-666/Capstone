@@ -76,6 +76,18 @@
         <servlet-name>AuthServlet</servlet-name>
         <url-pattern>/api/v1/auth/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>HealthServlet</servlet-name>
@@ -90,6 +102,10 @@
         <servlet-name>ProductServlet</servlet-name>
         <servlet-class>com.djmart.controller.ProductServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>ProductServlet</servlet-name>
+        <url-pattern>/products</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ProductServlet</servlet-name>
         <url-pattern>/products/*</url-pattern>
@@ -109,6 +125,10 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/cart</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CartServlet</servlet-name>
         <url-pattern>/cart/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -124,6 +144,10 @@
         <servlet-name>OrderServlet</servlet-name>
         <servlet-class>com.djmart.controller.OrderServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>OrderServlet</servlet-name>
+        <url-pattern>/orders</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>OrderServlet</servlet-name>
         <url-pattern>/orders/*</url-pattern>
@@ -184,6 +208,10 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>SellerServlet</servlet-name>
+        <url-pattern>/seller</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SellerServlet</servlet-name>
         <url-pattern>/seller/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -199,6 +227,10 @@
         <servlet-name>AdminServlet</servlet-name>
         <servlet-class>com.djmart.controller.AdminServlet</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AdminServlet</servlet-name>
         <url-pattern>/admin/*</url-pattern>

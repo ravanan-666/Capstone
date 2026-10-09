@@ -26,7 +26,7 @@ import java.io.IOException;
  * Controller managing user authentication, registration, session lifecycles, and identity inspection.
  * Serves both browser JSP form submissions (/auth/*) and REST JSON clients (/api/v1/auth/*).
  */
-@WebServlet(name = "AuthServlet", urlPatterns = {"/auth/*", "/api/v1/auth/*"})
+@WebServlet(name = "AuthServlet", urlPatterns = {"/auth/*", "/api/v1/auth/*", "/login", "/register", "/logout"})
 public class AuthServlet extends BaseServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServlet.class);
@@ -47,9 +47,9 @@ public class AuthServlet extends BaseServlet {
         String path = getPath(request);
 
         switch (path) {
-            case "/auth/login" -> showLoginForm(request, response);
-            case "/auth/register" -> showRegisterForm(request, response);
-            case "/auth/logout" -> processLogout(request, response, false);
+            case "/auth/login", "/login" -> showLoginForm(request, response);
+            case "/auth/register", "/register" -> showRegisterForm(request, response);
+            case "/auth/logout", "/logout" -> processLogout(request, response, false);
             case "/api/v1/auth/me" -> handleGetMe(request, response);
             default -> {
                 if (isJsonRequest(request)) {
@@ -67,11 +67,11 @@ public class AuthServlet extends BaseServlet {
         String path = getPath(request);
 
         switch (path) {
-            case "/auth/login" -> processLogin(request, response, false);
+            case "/auth/login", "/login" -> processLogin(request, response, false);
             case "/api/v1/auth/login" -> processLogin(request, response, true);
-            case "/auth/register" -> processRegister(request, response, false);
+            case "/auth/register", "/register" -> processRegister(request, response, false);
             case "/api/v1/auth/register" -> processRegister(request, response, true);
-            case "/auth/logout" -> processLogout(request, response, false);
+            case "/auth/logout", "/logout" -> processLogout(request, response, false);
             case "/api/v1/auth/logout" -> processLogout(request, response, true);
             default -> {
                 if (isJsonRequest(request)) {
