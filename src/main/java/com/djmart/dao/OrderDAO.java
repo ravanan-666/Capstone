@@ -66,4 +66,24 @@ public interface OrderDAO {
      * Counts total marketplace orders.
      */
     long countAll();
+
+    /**
+     * Calculates total gross marketplace revenue across all non-cancelled orders.
+     */
+    java.math.BigDecimal calculateTotalRevenue();
+
+    /**
+     * Returns top selling products ranked by units sold and revenue.
+     */
+    List<java.util.Map<String, Object>> getBestSellingProducts(int limit);
+
+    /**
+     * Returns daily sales aggregates for the past N days.
+     */
+    List<java.util.Map<String, Object>> getDailySales(int days);
+
+    /**
+     * Returns a summary of valid revenue and order state counts.
+     */
+    java.util.Map<String, Object> getSalesSummary();
 }

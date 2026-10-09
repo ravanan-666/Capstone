@@ -5,9 +5,9 @@ import com.djmart.util.DatabaseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -47,8 +47,9 @@ public class HealthServlet extends BaseServlet {
              ResultSet rs = stmt.executeQuery("SELECT 1")) {
 
             if (rs.next()) {
+                health.put("db", "UP");
                 health.put("database", "CONNECTED");
-                sendSuccess(response, HttpServletResponse.SC_OK, health, "DjMart system healthy");
+                sendSuccess(response, HttpServletResponse.SC_OK, health, "DJ Mart system healthy");
             } else {
                 health.put("status", "DEGRADED");
                 health.put("database", "NO_RESULT");

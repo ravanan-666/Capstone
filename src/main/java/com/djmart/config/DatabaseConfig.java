@@ -1,12 +1,12 @@
 package com.djmart.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configuration holder for database connectivity and HikariCP connection pool parameters.
@@ -46,7 +46,24 @@ public class DatabaseConfig {
     }
 
     private void loadDefaults() {
-        this.jdbcUrl = "jdbc:h2:./data/djmart;DB_CLOSE_DELAY=-1;MODE=REGULAR";
+        // Automatically ensure data directory exists in runtime environment
+        try {
+            File dataDir = new File("data");
+            if (!dataDir.exists()) {
+                dataDir.mkdirs();
+            }
+            String catalinaBase = System.getProperty("catalina.base");
+            if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+                File tomcatDataDir = new File(catalinaBase, "data");
+                if (!tomcatDataDir.exists()) {
+                    tomcatDataDir.mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Unable to pre-create data directory: {}", e.getMessage());
+        }
+
+        this.jdbcUrl = "jdbc:h2:./data/djmart;DB_CLOSE_DELAY=-1;MODE=REGULAR;AUTO_SERVER=TRUE";
         this.username = "sa";
         this.password = "";
         this.driverClassName = "org.h2.Driver";
@@ -140,22 +157,63 @@ public class DatabaseConfig {
     }
 
     private void applyEnvironmentVariables() {
-        String envUrl = System.getenv("DB_URL");
-        if (envUrl != null && !envUrl.isBlank()) {
-            this.jdbcUrl = envUrl.trim();
+        String envUrl = System.getenv("DATABASE_URL");
+        if (envUrl == null || envUrl.isBlank()) {
+            envUrl = System.getenv("DB_URL");
         }
-        String envUser = System.getenv("DB_USER");
+        if (envUrl != null && !envUrl.isBlank()) {
+            envUrl = envUrl.trim();
+            // Handle postgres:// or postgresql:// URI format from Render/Heroku/Neon/Supabase
+            if (envUrl.startsWith("postgres://") || envUrl.startsWith("postgresql://")) {
+                try {
+                    java.net.URI uri = new java.net.URI(envUrl);
+                    String userInfo = uri.getUserInfo();
+                    if (userInfo != null && userInfo.contains(":")) {
+                        String[] parts = userInfo.split(":", 2);
+                        if (this.username == null || this.username.equals("sa")) {
+                            this.username = parts[0];
+                        }
+                        if (this.password == null || this.password.isEmpty()) {
+                            this.password = parts[1];
+                        }
+                    }
+                    int port = uri.getPort() > 0 ? uri.getPort() : 5432;
+                    String path = uri.getPath();
+                    this.jdbcUrl = "jdbc:postgresql://" + uri.getHost() + ":" + port + path;
+                    if (uri.getQuery() != null && !uri.getQuery().isBlank()) {
+                        this.jdbcUrl += "?" + uri.getQuery();
+                    }
+                } catch (Exception ex) {
+                    // Fallback to simple replace
+                    this.jdbcUrl = envUrl.replaceFirst("^postgres://", "jdbc:postgresql://");
+                }
+                this.driverClassName = "org.postgresql.Driver";
+            } else {
+                this.jdbcUrl = envUrl;
+                if (envUrl.contains("postgresql")) {
+                    this.driverClassName = "org.postgresql.Driver";
+                }
+            }
+        }
+
+        String envUser = System.getenv("DB_USERNAME");
+        if (envUser == null || envUser.isBlank()) {
+            envUser = System.getenv("DB_USER");
+        }
         if (envUser != null && !envUser.isBlank()) {
             this.username = envUser.trim();
         }
+
         String envPass = System.getenv("DB_PASSWORD");
         if (envPass != null) {
             this.password = envPass.trim();
         }
+
         String envDriver = System.getenv("DB_DRIVER");
         if (envDriver != null && !envDriver.isBlank()) {
             this.driverClassName = envDriver.trim();
         }
+
         String envPoolSize = System.getenv("HIKARI_MAX_POOL_SIZE");
         if (envPoolSize != null && !envPoolSize.isBlank()) {
             try {

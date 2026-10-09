@@ -21,6 +21,14 @@ public class Product implements Serializable {
     private String imageUrl;
     private Timestamp createdAt;
 
+    private String brand;
+    private String sku;
+    private BigDecimal originalPrice;
+    private String currency = "INR";
+    private Boolean isActive = true;
+    private Timestamp priceVerifiedAt;
+    private Timestamp updatedAt;
+
     public Product() {
     }
 
@@ -110,6 +118,62 @@ public class Product implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public BigDecimal getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(BigDecimal originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Timestamp getPriceVerifiedAt() {
+        return priceVerifiedAt;
+    }
+
+    public void setPriceVerifiedAt(Timestamp priceVerifiedAt) {
+        this.priceVerifiedAt = priceVerifiedAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -119,6 +183,8 @@ public class Product implements Serializable {
                 ", price=" + price +
                 ", stockQty=" + stockQty +
                 ", category='" + category + '\'' +
+                ", brand='" + brand + '\'' +
+                ", sku='" + sku + '\'' +
                 '}';
     }
 }

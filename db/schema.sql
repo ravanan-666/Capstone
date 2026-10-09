@@ -1,5 +1,6 @@
+-- Active: 1791468148037@@@443@PUBLIC
 -- schema.sql
--- DjMart: Complete Database Schema Definition
+-- DJ Mart: Complete Database Schema Definition
 -- Anna University R2025 Semester 3 Capstone
 
 -- ==========================================

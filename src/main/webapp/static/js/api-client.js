@@ -1,5 +1,5 @@
 /**
- * DjMart API Client
+ * DJ Mart API Client
  * Centralized fetch client handling standard response envelopes, CSRF token attachment,
  * context path resolution, and error normalization.
  */

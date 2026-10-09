@@ -1,5 +1,5 @@
 /**
- * DjMart Toast Notifications
+ * DJ Mart Toast Notifications
  * Lightweight, accessible notification toasts matching the classical luxury design.
  */
 const DjMartToast = {
@@ -68,3 +68,6 @@ const DjMartToast = {
     this.show(msg, 'info');
   }
 };
+
+// Backward compatibility alias
+const RajamaniToast = DjMartToast;

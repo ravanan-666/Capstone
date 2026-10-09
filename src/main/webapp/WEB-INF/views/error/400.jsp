@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" isErrorPage="true" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="../common/header.jsp">
-    <jsp:param name="pageTitle" value="Bad Request — DjMart" />
+    <jsp:param name="pageTitle" value="Bad Request — DJ Mart" />
 </jsp:include>
 <div class="container">
     <div class="error-page">

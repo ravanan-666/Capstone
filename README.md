@@ -1,15 +1,15 @@
-# DjMart — Multi-Seller E-Commerce Marketplace
+# DJ Mart — Modern AI-Powered E-Commerce Marketplace
 
-[![build-and-test](https://github.com/djnir/djmart/actions/workflows/build.yml/badge.svg)](https://github.com/djnir/djmart/actions/workflows/build.yml)
-![Java 17](https://img.shields.io/badge/Java-17%20LTS-orange.svg)
-![Tomcat 9](https://img.shields.io/badge/Tomcat-9.0.x-blue.svg)
-![Servlet 4.0](https://img.shields.io/badge/Servlet-4.0%20JSP%2FJSTL-green.svg)
+[![build-and-test](https://github.com/djnir/DJ Mart/actions/workflows/build.yml/badge.svg)](https://github.com/djnir/DJ Mart/actions/workflows/build.yml)
+![Java 17/21](https://img.shields.io/badge/Java-17%2F21%20LTS-orange.svg)
+![Tomcat 10.1](https://img.shields.io/badge/Tomcat-10.1.x-blue.svg)
+![Jakarta EE 10](https://img.shields.io/badge/Jakarta%20EE-10%20Servlet%206.0-green.svg)
 ![Build](https://img.shields.io/badge/Build-Passing%20(125%20tests)-brightgreen.svg)
 
-> **Anna University R2025 Semester 3 Capstone Project**  
-> **Course / Degree**: Advanced Web Technologies / Full-Stack Java Enterprise  
-> **Architecture**: Layered MVC with Pure Java Servlets 4.0, JSP/JSTL, Raw JDBC, and HikariCP  
-> **Target Container**: Apache Tomcat 9.0.x | **Database**: H2 Engine (Embedded/Server)
+> **Live Public URL**: [https://assessed-mozilla-involves-limousines.trycloudflare.com](https://assessed-mozilla-involves-limousines.trycloudflare.com)  
+> **Architecture**: Layered MVC with Pure Jakarta EE 10 Servlets 6.0, JSP/JSTL, Raw JDBC, HikariCP, and DatabaseAwareChatEngine  
+> **Target Container**: Apache Tomcat 10.1.x | **Database**: Dual H2 Engine & PostgreSQL Support  
+> **Default Test Credentials**: `buyer.john@djmart.com` / `Password@123`, `admin@djmart.com` / `Password@123`
 
 ---
 
@@ -36,7 +36,7 @@
 
 ## 1. Project Overview
 
-**DjMart** is a comprehensive, production-ready multi-seller e-commerce web platform developed without monolithic frameworks (such as Spring Boot or Hibernate). Built using explicit, modular Java enterprise fundamentals, DjMart provides full-featured marketplace capabilities:
+**DJ Mart** is a comprehensive, production-ready multi-seller e-commerce web platform developed without monolithic frameworks (such as Spring Boot or Hibernate). Built using explicit, modular Java enterprise fundamentals, DJ Mart provides full-featured marketplace capabilities:
 
 - **Multi-Role RBAC**: Independent user experiences and secured authorization for **Buyers**, **Sellers**, and **Administrators**.
 - **Transactional Consistency**: Atomic multi-step checkout with server-side inventory locking and automatic rollback on failure.
@@ -67,7 +67,7 @@
 
 ## 3. System Architecture
 
-DjMart adheres to a strict **Layered MVC / Front Controller Architecture**:
+DJ Mart adheres to a strict **Layered MVC / Front Controller Architecture**:
 
 ```
                        HTTP Requests (Browser / AJAX)
@@ -209,7 +209,7 @@ graph TD
         A[Admin]
     end
 
-    subgraph "DjMart Marketplace System"
+    subgraph "DJ Mart Marketplace System"
         UC1[F1: Register, Login & Logout]
         UC2[F3: Browse, Search & Filter Catalog]
         UC3[F4: Manage Shopping Cart]
@@ -450,7 +450,7 @@ Implements an **atomic 10-step transaction**:
 
 ## 7. Database Setup & Schema
 
-DjMart runs seamlessly on **H2 Database Engine** in both embedded mode (for development/testing) and server mode.
+DJ Mart runs seamlessly on **H2 Database Engine** in both embedded mode (for development/testing) and server mode.
 
 ### Schema DDL (`db/schema.sql` and `schema.sql`)
 The database consists of 6 primary normalized tables:
@@ -473,11 +473,11 @@ All development and test accounts in `db/seed.sql` and `seed.sql` are pre-seeded
 
 | Role | Name | Email | Default Dashboard / Action |
 |---|---|---|---|
-| **ADMIN** | System Administrator | `admin@djmart.com` | `/admin/dashboard` (System KPIs & Users) |
-| **SELLER** | Tech Trends Official | `seller.tech@djmart.com` | `/seller/dashboard` (Electronics Inventory) |
-| **SELLER** | Urban Style Studio | `seller.style@djmart.com` | `/seller/dashboard` (Fashion Inventory) |
-| **BUYER** | John Doe | `buyer.john@djmart.com` | `/products` / `/orders` (Delivered Orders) |
-| **BUYER** | Sarah Connor | `buyer.sarah@djmart.com` | `/cart` (Active Cart Items) |
+| **ADMIN** | System Administrator | `admin@DJ Mart.com` | `/admin/dashboard` (System KPIs & Users) |
+| **SELLER** | Tech Trends Official | `seller.tech@DJ Mart.com` | `/seller/dashboard` (Electronics Inventory) |
+| **SELLER** | Urban Style Studio | `seller.style@DJ Mart.com` | `/seller/dashboard` (Fashion Inventory) |
+| **BUYER** | John Doe | `buyer.john@DJ Mart.com` | `/products` / `/orders` (Delivered Orders) |
+| **BUYER** | Sarah Connor | `buyer.sarah@DJ Mart.com` | `/cart` (Active Cart Items) |
 
 ---
 
@@ -532,8 +532,8 @@ All JSON endpoints return standardized responses conforming to `ApiResponse<T>`:
 ### Step-by-Step Execution
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/djnir/djmart.git
-   cd djmart
+   git clone https://github.com/djnir/DJ Mart.git
+   cd DJ Mart
    ```
 
 2. **Configure Environment Variables**:
@@ -552,13 +552,13 @@ All JSON endpoints return standardized responses conforming to `ApiResponse<T>`:
    ```bash
    mvn clean verify
    ```
-   This compiles, tests, packages, and verifies the deployable archive at `target/djmart.war`.
+   This compiles, tests, packages, and verifies the deployable archive at `target/DJ Mart.war`.
 
 ---
 
 ## 11. Tomcat Deployment Instructions
 
-DjMart is packaged as a standard Web Application Archive (`.war`) targetable to **Apache Tomcat 9.0.x**.
+DJ Mart is packaged as a standard Web Application Archive (`.war`) targetable to **Apache Tomcat 9.0.x**.
 
 1. **Download and Extract Tomcat 9.0.x**:
    Ensure Tomcat 9 is installed and configured to run on Java 17.
@@ -566,7 +566,7 @@ DjMart is packaged as a standard Web Application Archive (`.war`) targetable to 
 2. **Deploy the WAR File**:
    Copy the built WAR artifact into Tomcat's deployment directory:
    ```bash
-   cp target/djmart.war /path/to/apache-tomcat-9.x/webapps/
+   cp target/DJ Mart.war /path/to/apache-tomcat-9.x/webapps/
    ```
 
 3. **Start Tomcat**:
@@ -579,13 +579,13 @@ DjMart is packaged as a standard Web Application Archive (`.war`) targetable to 
      & "C:\path\to\apache-tomcat-9.x\bin\startup.bat"
      ```
 
-4. **Access DjMart Marketplace**:
+4. **Access DJ Mart Marketplace**:
    Open your browser to:
    ```
-   http://localhost:8080/djmart
+   http://localhost:8080/DJ Mart
    ```
-   - Sign in with any seed account (e.g., `buyer.john@djmart.com` / `Password@123`).
-   - Check health status at `http://localhost:8080/djmart/api/v1/health`.
+   - Sign in with any seed account (e.g., `buyer.john@DJ Mart.com` / `Password@123`).
+   - Check health status at `http://localhost:8080/DJ Mart/api/v1/health`.
 
 ---
 

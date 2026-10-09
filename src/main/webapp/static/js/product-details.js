@@ -1,5 +1,5 @@
 /**
- * DjMart Product Details Controller
+ * DJ Mart Product Details Controller
  * Handles image gallery thumbnail swapping, accessible quantity stepper limits,
  * Add to Cart API interactions, and direct Buy Now checkout navigation.
  */

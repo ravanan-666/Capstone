@@ -1,7 +1,7 @@
-# DjMart System Architecture Documentation
+# DJ Mart System Architecture Documentation
 
 ## 1. Architectural Philosophy
-DjMart implements the classic **Layered MVC / Front Controller Pattern** over Java Servlets, JSP/JSTL, and raw JDBC.
+DJ Mart implements the classic **Layered MVC / Front Controller Pattern** over Java Servlets, JSP/JSTL, and raw JDBC.
 
 ```
 +-------------------------------------------------------------------+
@@ -59,7 +59,7 @@ DjMart implements the classic **Layered MVC / Front Controller Pattern** over Ja
 - **Strategy Pattern**: Swappable notification/payment mock and AI chatbot providers (`GeminiChatProvider` vs `MockChatProvider`).
 
 ## 3. Database Connection Lifecycle
-- **Initialization**: When Tomcat boots DjMart, `AppContextListener.contextInitialized` initializes HikariCP using `DatabaseConfig`.
+- **Initialization**: When Tomcat boots DJ Mart, `AppContextListener.contextInitialized` initializes HikariCP using `DatabaseConfig`.
 - **Acquisition**: `BaseDAO` or Service calls `DatabaseUtil.getConnection()`.
 - **Release**: Handled strictly via Java `try-with-resources` blocks (`try (Connection conn = ...) { ... }`), guaranteeing no leaks.
-- **Shutdown**: When Tomcat stops DjMart, `AppContextListener.contextDestroyed` closes the pool gracefully.
+- **Shutdown**: When Tomcat stops DJ Mart, `AppContextListener.contextDestroyed` closes the pool gracefully.

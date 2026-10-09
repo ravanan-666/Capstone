@@ -1,15 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><c:out value="${pageTitle != null ? pageTitle : 'DjMart — Premium Multi-Seller Marketplace'}" /></title>
+    <title><c:out value="${pageTitle != null ? pageTitle : 'DJ Mart — Premium Multi-Seller Marketplace'}" /></title>
     <meta name="csrf-token" content="${sessionScope.csrfToken != null ? sessionScope.csrfToken : csrfToken}">
     <meta name="context-path" content="${pageContext.request.contextPath}">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
+    <link rel="icon" type="image/jpeg" href="${pageContext.request.contextPath}/static/images/dj_mart_logo.jpg">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/static/images/dj_mart_logo.jpg">
+    <link rel="manifest" href="${pageContext.request.contextPath}/manifest.json">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +22,9 @@
 <body>
 <header class="site-header">
     <div class="container">
-        <a href="${pageContext.request.contextPath}/" class="brand-logo">Dj<span>Mart</span></a>
+        <a href="${pageContext.request.contextPath}/" class="brand-logo" aria-label="DJ Mart Homepage">
+            <img src="${pageContext.request.contextPath}/static/images/dj_mart_logo.jpg" alt="DJ Mart" class="brand-logo-img">
+        </a>
         
         <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Navigation" aria-expanded="false">
             <span class="bar"></span>
@@ -43,7 +49,8 @@
                             <li><a href="${pageContext.request.contextPath}/seller/dashboard" class="nav-link">Seller Dashboard</a></li>
                         </c:if>
                         <c:if test="${sessionScope.user.role == 'ADMIN'}">
-                            <li><a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-link">Admin Panel</a></li>
+                            <li><a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-link">Admin Dashboard</a></li>
+                            <li><a href="${pageContext.request.contextPath}/admin/analytics" class="nav-link">Analytics</a></li>
                         </c:if>
                         <li><a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-outline">Logout</a></li>
                     </c:when>

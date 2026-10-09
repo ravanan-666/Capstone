@@ -37,7 +37,15 @@ public class CartResponse implements Serializable {
         return totalItems;
     }
 
+    public int getItemCount() {
+        return totalItems;
+    }
+
     public BigDecimal getGrandTotal() {
+        return grandTotal;
+    }
+
+    public BigDecimal getTotalAmount() {
         return grandTotal;
     }
 

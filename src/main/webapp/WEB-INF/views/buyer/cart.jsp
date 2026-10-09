@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<c:set var="pageTitle" value="Shopping Bag — DjMart" scope="request"/>
+<c:set var="pageTitle" value="Shopping Bag — DJ Mart" scope="request"/>
 <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">

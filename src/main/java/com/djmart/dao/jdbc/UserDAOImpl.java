@@ -184,6 +184,27 @@ public class UserDAOImpl extends BaseDAO implements UserDAO {
     }
 
     @Override
+    public long countByRole(Role role) {
+        if (role == null) {
+            return 0;
+        }
+        String sql = "SELECT COUNT(*) FROM users WHERE role = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, role.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to count users by role {}: {}", role, e.getMessage(), e);
+            throw new DatabaseException("Failed to count users by role", e);
+        }
+    }
+
+    @Override
     public boolean delete(Long id) {
         if (id == null) {
             return false;

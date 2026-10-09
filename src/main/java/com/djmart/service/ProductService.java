@@ -49,4 +49,24 @@ public interface ProductService {
      * Returns all distinct category names currently present in the marketplace catalog.
      */
     List<String> getCategories();
+
+    /**
+     * Returns all products with low stock at or below threshold.
+     */
+    List<ProductResponse> getLowStockAlerts(int threshold);
+
+    /**
+     * Updates product stock directly.
+     */
+    boolean updateProductStock(Long productId, int newStock);
+
+    /**
+     * Updates product price directly.
+     */
+    boolean updateProductPrice(Long productId, BigDecimal newPrice);
+
+    /**
+     * Retrieves all products in catalog with pagination for admin management.
+     */
+    PageResponse<ProductResponse> getAllProducts(int page, int size);
 }

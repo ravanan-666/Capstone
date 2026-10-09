@@ -83,4 +83,24 @@ public interface ProductDAO {
      * Returns distinct category names available in the catalog.
      */
     List<String> findDistinctCategories();
+
+    /**
+     * Counts products listed by a seller that have stock at or below the given threshold.
+     */
+    long countLowStockBySeller(Long sellerId, int threshold);
+
+    /**
+     * Returns total count of all products in catalog.
+     */
+    long countAll();
+
+    /**
+     * Returns products across entire catalog with stock at or below given threshold.
+     */
+    List<Product> findLowStock(int threshold);
+
+    /**
+     * Updates product price directly.
+     */
+    boolean updatePrice(Long productId, BigDecimal newPrice);
 }

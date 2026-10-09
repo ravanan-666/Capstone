@@ -3,7 +3,7 @@
 autonumber
 skinparam responseMessageBelowArrow true
 
-title DjMart - Place Order Sequence Diagram (D3)\nBrowser -> Servlet -> Service -> DAO -> Database
+title DJ Mart - Place Order Sequence Diagram (D3)\nBrowser -> Servlet -> Service -> DAO -> Database
 
 actor "Buyer (Browser)" as Browser
 participant "Encoding & AuthFilter" as Filter

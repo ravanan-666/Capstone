@@ -125,8 +125,8 @@ class MarketplaceDaoIntegrationTest {
                 .findFirst()
                 .orElseThrow();
         assertNotNull(item.getProduct());
-        assertEquals("Mechanical Gaming Keyboard", item.getProduct().getName());
-        assertEquals(new BigDecimal("89.50"), item.getProduct().getPrice());
+        assertEquals("Keychron K2 V2 Wireless Mechanical Keyboard", item.getProduct().getName());
+        assertEquals(new BigDecimal("7499.00"), item.getProduct().getPrice());
 
         // 3. Update quantity
         assertTrue(cartDAO.updateQuantity(item.getId(), 3));

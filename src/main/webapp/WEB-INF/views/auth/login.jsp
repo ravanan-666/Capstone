@@ -1,15 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<c:set var="pageTitle" value="Sign In — DjMart Marketplace" scope="request"/>
+<c:set var="pageTitle" value="Sign In — DJ Mart Marketplace" scope="request"/>
 <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <div class="container">
     <div class="auth-container">
-        <div class="auth-header">
+        <div class="auth-header" style="text-align: center;">
+            <a href="${pageContext.request.contextPath}/" aria-label="DJ Mart Homepage">
+                <img src="${pageContext.request.contextPath}/static/images/dj_mart_logo.jpg" alt="DJ Mart Logo" class="auth-brand-logo">
+            </a>
             <h1>Welcome Back</h1>
-            <p>Sign in to access your DjMart account</p>
+            <p>Sign in to access your DJ Mart account</p>
         </div>
 
         <c:if test="${not empty errorMessage}">
@@ -53,13 +56,19 @@
 
             <div class="form-group">
                 <label for="password" class="form-label">Password</label>
-                <input type="password"
-                       id="password"
-                       name="password"
-                       class="form-control"
-                       placeholder="Enter your account password"
-                       required
-                       autocomplete="current-password">
+                <div class="password-field-wrapper">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="form-control"
+                           placeholder="Enter your account password"
+                           required
+                           autocomplete="current-password">
+                    <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility"
+                            onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password'; this.textContent = p.type === 'password' ? '👁' : '🔒';">
+                        👁
+                    </button>
+                </div>
             </div>
 
             <div style="margin-top: 1.5rem;">
@@ -68,7 +77,7 @@
         </form>
 
         <div class="auth-footer">
-            <p>New to DjMart? <a href="${pageContext.request.contextPath}/auth/register">Create an account</a></p>
+            <p>New to DJ Mart? <a href="${pageContext.request.contextPath}/auth/register">Create an account</a></p>
         </div>
     </div>
 </div>

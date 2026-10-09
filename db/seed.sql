@@ -1,5 +1,6 @@
+-- Active: 1791468148037@@@443@PUBLIC
 -- seed.sql
--- DjMart: Initial Development & Demo Seed Data
+-- DJ Mart: Initial Development & Demo Seed Data
 -- Passwords for all accounts are 'Password@123' (hashed using jBCrypt with 10 salt rounds)
 
 -- =============================================================================

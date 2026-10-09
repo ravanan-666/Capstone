@@ -1,5 +1,5 @@
 /**
- * DjMart Shopping Bag Controller
+ * DJ Mart Shopping Bag Controller
  * Enforces server-authoritative pricing, stock validation, dynamic quantity updates,
  * item removal, and empty state toggling.
  */

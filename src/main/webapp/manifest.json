@@ -1,0 +1,20 @@
+{
+  "name": "DJ Mart",
+  "short_name": "DJ Mart",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0e1b2a",
+  "theme_color": "#0e1b2a",
+  "icons": [
+    {
+      "src": "static/images/dj_mart_logo.jpg",
+      "sizes": "616x768",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

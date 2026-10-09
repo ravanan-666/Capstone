@@ -30,4 +30,9 @@ public interface OrderItemDAO {
      * Finds order items belonging to a specific seller within an order.
      */
     List<OrderItemResponse> findByOrderIdAndSellerId(Long orderId, Long sellerId);
+
+    /**
+     * Calculates total gross sales revenue earned by a seller from non-cancelled orders.
+     */
+    java.math.BigDecimal calculateSellerRevenue(Long sellerId);
 }

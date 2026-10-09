@@ -181,6 +181,54 @@ public class ProductServiceImpl implements ProductService {
         return productDAO.findDistinctCategories();
     }
 
+    @Override
+    public List<ProductResponse> getLowStockAlerts(int threshold) {
+        List<Product> products = productDAO.findLowStock(threshold);
+        return products.stream()
+                .map(this::enrichProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean updateProductStock(Long productId, int newStock) {
+        if (productId == null || newStock < 0) {
+            return false;
+        }
+        boolean updated = productDAO.updateStock(productId, newStock);
+        if (updated) {
+            LOGGER.info("Stock updated directly for product ID: {} to {}", productId, newStock);
+        }
+        return updated;
+    }
+
+    @Override
+    public boolean updateProductPrice(Long productId, BigDecimal newPrice) {
+        if (productId == null || newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+            return false;
+        }
+        boolean updated = productDAO.updatePrice(productId, newPrice);
+        if (updated) {
+            LOGGER.info("Price updated directly for product ID: {} to {}", productId, newPrice);
+        }
+        return updated;
+    }
+
+    @Override
+    public PageResponse<ProductResponse> getAllProducts(int page, int size) {
+        int safePage = Math.max(1, page);
+        int safeSize = Math.max(1, Math.min(100, size));
+        int offset = (safePage - 1) * safeSize;
+
+        List<Product> products = productDAO.search(null, null, null, null, "created_at", "DESC", offset, safeSize);
+        long total = productDAO.countAll();
+
+        List<ProductResponse> dtos = products.stream()
+                .map(this::enrichProductResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(dtos, safePage, safeSize, total);
+    }
+
     private void validateProductInput(Long sellerId, ProductRequest request) {
         ValidationErrors errors = new ValidationErrors();
         ValidationUtil.validateId(sellerId, "sellerId", errors);

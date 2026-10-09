@@ -1,5 +1,6 @@
+-- Active: 1791468148037@@@443@PUBLIC
 -- V2__add_performance_indexes.sql
--- DjMart: Search, Category Filtering, Price Sorting, and Status Workflow Indexes
+-- DJ Mart: Search, Category Filtering, Price Sorting, and Status Workflow Indexes
 
 -- Product Search & Filter Indexes
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);

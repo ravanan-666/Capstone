@@ -55,4 +55,19 @@ public interface OrderService {
      * Cancels an order and restores product inventory if status allows cancellation.
      */
     boolean cancelOrder(Long orderId, Long requesterId, Role requesterRole);
+
+    /**
+     * Returns best selling products for analytics.
+     */
+    java.util.List<java.util.Map<String, Object>> getBestSellingProducts(int limit);
+
+    /**
+     * Returns daily sales aggregates for analytics.
+     */
+    java.util.List<java.util.Map<String, Object>> getDailySales(int days);
+
+    /**
+     * Returns platform sales summary for analytics.
+     */
+    java.util.Map<String, Object> getSalesAnalytics();
 }

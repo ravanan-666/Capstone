@@ -6,11 +6,11 @@ import com.djmart.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.MessageDigest;
 
@@ -67,6 +67,9 @@ public class CsrfFilter implements Filter {
         if (clientToken == null || clientToken.trim().isEmpty()) {
             clientToken = httpRequest.getParameter(SecurityUtil.CSRF_PARAM);
         }
+        if (clientToken == null || clientToken.trim().isEmpty()) {
+            clientToken = httpRequest.getParameter("csrfToken");
+        }
 
         if (clientToken == null || !constantTimeEquals(sessionToken, clientToken)) {
             LOGGER.warn("CSRF token validation failed for {} {} from IP {}",
@@ -95,7 +98,10 @@ public class CsrfFilter implements Filter {
         return path.equals("/api/v1/auth/login") ||
                path.equals("/api/v1/auth/register") ||
                path.equals("/auth/login") ||
-               path.equals("/auth/register");
+               path.equals("/auth/register") ||
+               path.equals("/api/chat") ||
+               path.equals("/api/v1/chat") ||
+               path.startsWith("/h2-console");
     }
 
     /**

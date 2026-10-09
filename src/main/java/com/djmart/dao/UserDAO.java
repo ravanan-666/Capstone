@@ -49,6 +49,11 @@ public interface UserDAO {
     long count();
 
     /**
+     * Returns total user count with a specific role.
+     */
+    long countByRole(com.djmart.model.Role role);
+
+    /**
      * Deletes a user by ID.
      */
     boolean delete(Long id);

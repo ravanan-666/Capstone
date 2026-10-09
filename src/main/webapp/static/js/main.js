@@ -1,5 +1,5 @@
 /**
- * DjMart Main Application JavaScript
+ * DJ Mart Main Application JavaScript
  * Orchestrates navigation drawer toggle and initial session cart badge synchronization.
  */
 document.addEventListener('DOMContentLoaded', () => {

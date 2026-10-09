@@ -22,11 +22,34 @@ public class ProductResponse implements Serializable {
     private Integer stockQty;
     private String category;
     private String imageUrl;
+    private String brand;
+    private String sku;
+    private BigDecimal originalPrice;
+    private String currency = "INR";
+    private Timestamp priceVerifiedAt;
+    private Integer discountPercent;
     private Double averageRating;
     private Integer reviewCount;
     private Timestamp createdAt;
 
     public ProductResponse() {
+    }
+
+    public ProductResponse(Long id, Long sellerId, String sellerName, String name, String description,
+                           BigDecimal price, Integer stockQty, String category, String imageUrl,
+                           Double averageRating, Integer reviewCount, Timestamp createdAt) {
+        this.id = id;
+        this.sellerId = sellerId;
+        this.sellerName = sellerName;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stockQty = stockQty;
+        this.category = category;
+        this.imageUrl = imageUrl;
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
+        this.createdAt = createdAt;
     }
 
     public static ProductResponse fromProduct(Product product) {
@@ -43,6 +66,18 @@ public class ProductResponse implements Serializable {
         dto.setCategory(product.getCategory());
         dto.setImageUrl(product.getImageUrl());
         dto.setCreatedAt(product.getCreatedAt());
+        dto.setBrand(product.getBrand());
+        dto.setSku(product.getSku());
+        dto.setOriginalPrice(product.getOriginalPrice());
+        dto.setCurrency(product.getCurrency() != null ? product.getCurrency() : "INR");
+        dto.setPriceVerifiedAt(product.getPriceVerifiedAt());
+        if (product.getOriginalPrice() != null && product.getPrice() != null &&
+                product.getOriginalPrice().compareTo(product.getPrice()) > 0) {
+            BigDecimal diff = product.getOriginalPrice().subtract(product.getPrice());
+            int pct = diff.multiply(BigDecimal.valueOf(100))
+                    .divide(product.getOriginalPrice(), 0, java.math.RoundingMode.HALF_UP).intValue();
+            dto.setDiscountPercent(pct);
+        }
         return dto;
     }
 
@@ -140,6 +175,54 @@ public class ProductResponse implements Serializable {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public BigDecimal getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(BigDecimal originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Timestamp getPriceVerifiedAt() {
+        return priceVerifiedAt;
+    }
+
+    public void setPriceVerifiedAt(Timestamp priceVerifiedAt) {
+        this.priceVerifiedAt = priceVerifiedAt;
+    }
+
+    public Integer getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Integer discountPercent) {
+        this.discountPercent = discountPercent;
     }
 
     @Override

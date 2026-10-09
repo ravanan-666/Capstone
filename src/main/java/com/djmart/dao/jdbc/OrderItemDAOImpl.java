@@ -141,4 +141,30 @@ public class OrderItemDAOImpl extends BaseDAO implements OrderItemDAO {
             throw new DatabaseException("Failed to retrieve seller order items", e);
         }
     }
+
+    @Override
+    public java.math.BigDecimal calculateSellerRevenue(Long sellerId) {
+        if (sellerId == null) {
+            return java.math.BigDecimal.ZERO;
+        }
+        String sql = "SELECT COALESCE(SUM(oi.unit_price * oi.quantity), 0) " +
+                     "FROM order_items oi " +
+                     "JOIN products p ON oi.product_id = p.id " +
+                     "JOIN orders o ON oi.order_id = o.id " +
+                     "WHERE p.seller_id = ? AND o.status != 'CANCELLED'";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    java.math.BigDecimal rev = rs.getBigDecimal(1);
+                    return rev != null ? rev : java.math.BigDecimal.ZERO;
+                }
+            }
+            return java.math.BigDecimal.ZERO;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to calculate seller revenue for seller {}: {}", sellerId, e.getMessage(), e);
+            throw new DatabaseException("Failed to calculate seller revenue", e);
+        }
+    }
 }

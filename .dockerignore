@@ -1,0 +1,13 @@
+target/
+.git/
+.github/
+data/
+generator/
+presentation/
+*.pdf
+*.pptx
+*.html
+*.png
+*.log
+.env
+.env.example

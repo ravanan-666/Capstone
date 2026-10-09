@@ -1,5 +1,6 @@
+-- Active: 1791468148037@@@443@PUBLIC
 -- V1__init_schema.sql
--- DjMart: Initial Core Schema Definition
+-- DJ Mart: Initial Core Schema Definition
 -- Anna University R2025 Semester 3 Capstone
 
 -- 1. USERS TABLE
@@ -13,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 2. PRODUCTS TABLE
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     seller_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,

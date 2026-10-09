@@ -1,8 +1,9 @@
 package com.djmart.filter;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -27,6 +28,14 @@ public class SecurityHeadersFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse httpResponse) {
+            String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
+            if (path.startsWith("/h2-console")) {
+                httpResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
+                chain.doFilter(request, response);
+                return;
+            }
+        }
         if (response instanceof HttpServletResponse httpResponse) {
             httpResponse.setHeader("X-Content-Type-Options", "nosniff");
             httpResponse.setHeader("X-Frame-Options", "SAMEORIGIN");

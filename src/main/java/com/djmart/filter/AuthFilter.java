@@ -8,11 +8,11 @@ import com.djmart.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +105,7 @@ public class AuthFilter implements Filter {
     }
 
     private boolean isPublicPath(String path, String method) {
-        if (path.startsWith("/static/") || path.equals("/favicon.ico")) {
+        if (path.startsWith("/static/") || path.equals("/favicon.ico") || path.equals("/manifest.json") || path.equals("/robots.txt")) {
             return true;
         }
         if (path.equals("/") || path.equals("/index.jsp")) {
@@ -118,6 +118,12 @@ public class AuthFilter implements Filter {
             return true;
         }
         if (path.equals("/api/v1/health")) {
+            return true;
+        }
+        if (path.equals("/api/chat") || path.equals("/api/v1/chat")) {
+            return true;
+        }
+        if (path.startsWith("/h2-console")) {
             return true;
         }
         // Public browse catalog endpoints (GET only)
@@ -150,10 +156,16 @@ public class AuthFilter implements Filter {
         if (path.startsWith("/api/products") || path.startsWith("/api/v1/products")) {
             return "POST".equals(method) || "PUT".equals(method) || "DELETE".equals(method);
         }
+        if (path.contains("/orders/") && path.endsWith("/status")) {
+            return true;
+        }
         return false;
     }
 
     private boolean isBuyerPath(String path, String method) {
+        if (path.contains("/orders/") && path.endsWith("/status")) {
+            return false;
+        }
         if (path.startsWith("/cart") || path.startsWith("/api/cart") || path.startsWith("/api/v1/cart")) {
             return true;
         }

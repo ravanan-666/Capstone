@@ -227,7 +227,7 @@ public class DatabaseIntegrationTest {
     @Order(8)
     @DisplayName("Verify DECIMAL precision without floating point inaccuracies")
     void testMonetaryDecimalPrecision() throws SQLException {
-        BigDecimal exactPrice = new BigDecimal("149.99");
+        BigDecimal exactPrice = new BigDecimal("29990.00");
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT price FROM products WHERE id = 1")) {
             try (ResultSet rs = ps.executeQuery()) {

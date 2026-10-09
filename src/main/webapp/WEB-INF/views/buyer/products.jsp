@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<c:set var="pageTitle" value="Curated Collection — DjMart" scope="request"/>
+<c:set var="pageTitle" value="Curated Collection — DJ Mart" scope="request"/>
 <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
@@ -40,9 +40,9 @@
                 <label for="categorySelect" class="form-label">Category</label>
                 <select id="categorySelect" name="category" class="form-control">
                     <option value="">All Categories</option>
-                    <c:forEach items="${categories}" var="cat">
-                        <option value="${cat}" ${selectedCategory == cat ? 'selected' : ''}>
-                            <c:out value="${cat}"/>
+                    <c:forEach items="${categories}" var="categoryItem">
+                        <option value="${categoryItem}" ${selectedCategory == categoryItem ? 'selected' : ''}>
+                            <c:out value="${categoryItem}"/>
                         </option>
                     </c:forEach>
                 </select>
@@ -113,6 +113,9 @@
                     </a>
                 </div>
                 <div class="product-card-content">
+                    <c:if test="${not empty p.brand}">
+                        <div class="product-brand"><c:out value="${p.brand}"/></div>
+                    </c:if>
                     <div class="product-category"><c:out value="${p.category}"/></div>
                     <h3 class="product-title">
                         <a href="${pageContext.request.contextPath}/products/${p.id}"><c:out value="${p.name}"/></a>
@@ -132,7 +135,13 @@
                     </div>
 
                     <div class="product-price-stock">
-                        <span class="product-price">₹<fmt:formatNumber value="${p.price}" pattern="#,##0.00"/></span>
+                        <div class="product-price-wrap">
+                            <span class="product-price">₹<fmt:formatNumber value="${p.price}" pattern="#,##0"/></span>
+                            <c:if test="${p.originalPrice != null && p.originalPrice > p.price}">
+                                <span class="product-original-price">₹<fmt:formatNumber value="${p.originalPrice}" pattern="#,##0"/></span>
+                                <span class="product-discount-badge">${p.discountPercent}% OFF</span>
+                            </c:if>
+                        </div>
                         <c:choose>
                             <c:when test="${p.stockQty <= 0}">
                                 <span class="badge badge-out-of-stock">Out of Stock</span>
@@ -155,9 +164,16 @@
                                 <button type="button"
                                         class="btn btn-primary btn-block add-to-cart-btn"
                                         data-product-id="${p.id}"
-                                        aria-label="Add <c:out value='${p.name}'/> to Cart">
+                                        aria-label="Add <c:out value='${p.name}'/> to Cart"
+                                        style="flex: 1;">
                                     Add to Cart
                                 </button>
+                                <a href="${pageContext.request.contextPath}/products/${p.id}"
+                                   class="btn btn-outline btn-buy-now"
+                                   style="padding: 0.625rem 0.75rem; font-size: 0.85rem;"
+                                   title="View & Buy Now">
+                                    Buy &rarr;
+                                </a>
                             </c:otherwise>
                         </c:choose>
                     </div>

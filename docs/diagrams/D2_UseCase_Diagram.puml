@@ -3,14 +3,14 @@
 skinparam packageStyle rectangle
 skinparam actorStyle awesome
 
-title DjMart - Use Case Diagram (D2)
+title DJ Mart - Use Case Diagram (D2)
 
 actor "Buyer" as buyer
 actor "Seller" as seller
 actor "Admin" as admin
 actor "Guest" as guest
 
-rectangle "DjMart Marketplace System" {
+rectangle "DJ Mart Marketplace System" {
   usecase "F1: Register & Login" as UC_Auth
   usecase "F2: Manage Product Listings\n(Create, Edit, Delete)" as UC_ManageProducts
   usecase "F3: Browse, Search & Filter Products" as UC_Browse

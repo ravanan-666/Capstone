@@ -4,7 +4,7 @@ skinparam monochrome false
 skinparam roundcorner 10
 skinparam linetype ortho
 
-title DjMart - Entity Relationship (ER) Diagram (D1)
+title DJ Mart - Entity Relationship (ER) Diagram (D1)
 
 entity "users" as users {
   * id : BIGINT <<PK>>

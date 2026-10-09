@@ -1,5 +1,5 @@
-# DjMart Database Configuration Example
-db.url=jdbc:h2:./data/djmart;DB_CLOSE_DELAY=-1;MODE=REGULAR
+# DJ Mart Database Configuration Example
+db.url=jdbc:h2:./data/djmart;DB_CLOSE_DELAY=-1;MODE=REGULAR;AUTO_SERVER=TRUE
 db.user=sa
 db.password=
 db.driver=org.h2.Driver

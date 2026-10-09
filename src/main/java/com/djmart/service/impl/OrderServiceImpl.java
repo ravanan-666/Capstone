@@ -337,6 +337,21 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public List<java.util.Map<String, Object>> getBestSellingProducts(int limit) {
+        return orderDAO.getBestSellingProducts(limit);
+    }
+
+    @Override
+    public List<java.util.Map<String, Object>> getDailySales(int days) {
+        return orderDAO.getDailySales(days);
+    }
+
+    @Override
+    public java.util.Map<String, Object> getSalesAnalytics() {
+        return orderDAO.getSalesSummary();
+    }
+
     private OrderResponse enrichOrderResponse(Order order) {
         OrderResponse dto = OrderResponse.fromOrder(order);
         if (dto != null) {

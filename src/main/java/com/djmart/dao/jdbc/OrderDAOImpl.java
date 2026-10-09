@@ -1,17 +1,23 @@
 package com.djmart.dao.jdbc;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.djmart.dao.BaseDAO;
 import com.djmart.dao.OrderDAO;
 import com.djmart.exception.DatabaseException;
 import com.djmart.model.Order;
 import com.djmart.model.OrderStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * JDBC implementation of OrderDAO with transaction support and seller filtering.
@@ -255,6 +261,114 @@ public class OrderDAOImpl extends BaseDAO implements OrderDAO {
         } catch (SQLException e) {
             LOGGER.error("Failed to count all orders: {}", e.getMessage(), e);
             throw new DatabaseException("Failed to count orders", e);
+        }
+    }
+
+    @Override
+    public java.math.BigDecimal calculateTotalRevenue() {
+        String sql = "SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status != 'CANCELLED'";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                java.math.BigDecimal rev = rs.getBigDecimal(1);
+                return rev != null ? rev : java.math.BigDecimal.ZERO;
+            }
+            return java.math.BigDecimal.ZERO;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to calculate total revenue: {}", e.getMessage(), e);
+            throw new DatabaseException("Failed to calculate total revenue", e);
+        }
+    }
+
+    @Override
+    public List<java.util.Map<String, Object>> getBestSellingProducts(int limit) {
+        String sql = "SELECT p.id, p.name, p.category, p.price, p.image_url, " +
+                     "SUM(oi.quantity) as total_units_sold, " +
+                     "SUM(oi.quantity * oi.unit_price) as total_revenue " +
+                     "FROM order_items oi " +
+                     "JOIN orders o ON oi.order_id = o.id " +
+                     "JOIN products p ON oi.product_id = p.id " +
+                     "WHERE o.status != 'CANCELLED' " +
+                     "GROUP BY p.id, p.name, p.category, p.price, p.image_url " +
+                     "ORDER BY total_units_sold DESC LIMIT ?";
+        List<java.util.Map<String, Object>> list = new ArrayList<>();
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, Math.max(1, limit));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    java.util.Map<String, Object> map = new HashMap<>();
+                    map.put("productId", rs.getLong("id"));
+                    map.put("name", rs.getString("name"));
+                    map.put("category", rs.getString("category"));
+                    map.put("price", rs.getBigDecimal("price"));
+                    map.put("imageUrl", rs.getString("image_url"));
+                    map.put("unitsSold", rs.getInt("total_units_sold"));
+                    map.put("revenue", rs.getBigDecimal("total_revenue"));
+                    list.add(map);
+                }
+            }
+            return list;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to fetch best selling products: {}", e.getMessage(), e);
+            throw new DatabaseException("Failed to fetch best selling products", e);
+        }
+    }
+
+    @Override
+    public List<java.util.Map<String, Object>> getDailySales(int days) {
+        String sql = "SELECT CAST(created_at AS DATE) as order_date, " +
+                     "COUNT(*) as order_count, " +
+                     "SUM(total_amount) as total_revenue " +
+                     "FROM orders " +
+                     "WHERE status != 'CANCELLED' " +
+                     "GROUP BY CAST(created_at AS DATE) " +
+                     "ORDER BY order_date DESC LIMIT ?";
+        List<java.util.Map<String, Object>> list = new ArrayList<>();
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, Math.max(1, days));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    java.util.Map<String, Object> map = new HashMap<>();
+                    map.put("date", rs.getString("order_date"));
+                    map.put("orderCount", rs.getLong("order_count"));
+                    map.put("revenue", rs.getBigDecimal("total_revenue"));
+                    list.add(map);
+                }
+            }
+            return list;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to fetch daily sales: {}", e.getMessage(), e);
+            throw new DatabaseException("Failed to fetch daily sales", e);
+        }
+    }
+
+    @Override
+    public java.util.Map<String, Object> getSalesSummary() {
+        java.util.Map<String, Object> map = new HashMap<>();
+        String sql = "SELECT " +
+                     "COUNT(*) as total_orders, " +
+                     "COALESCE(SUM(CASE WHEN status != 'CANCELLED' THEN total_amount ELSE 0 END), 0) as valid_revenue, " +
+                     "COUNT(CASE WHEN status = 'DELIVERED' THEN 1 END) as delivered_orders, " +
+                     "COUNT(CASE WHEN status = 'PENDING' OR status = 'CONFIRMED' THEN 1 END) as active_orders, " +
+                     "COUNT(CASE WHEN status = 'CANCELLED' THEN 1 END) as cancelled_orders " +
+                     "FROM orders";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                map.put("totalOrders", rs.getLong("total_orders"));
+                map.put("validRevenue", rs.getBigDecimal("valid_revenue"));
+                map.put("deliveredOrders", rs.getLong("delivered_orders"));
+                map.put("activeOrders", rs.getLong("active_orders"));
+                map.put("cancelledOrders", rs.getLong("cancelled_orders"));
+            }
+            return map;
+        } catch (SQLException e) {
+            LOGGER.error("Failed to fetch sales summary: {}", e.getMessage(), e);
+            throw new DatabaseException("Failed to fetch sales summary", e);
         }
     }
 

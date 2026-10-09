@@ -1,5 +1,5 @@
 /**
- * DjMart Products Catalog Controller
+ * DJ Mart Products Catalog Controller
  * Manages debounced search, category/price filters, sorting, backend pagination,
  * URL query state synchronization, and dynamic product card rendering.
  */
@@ -104,16 +104,34 @@ document.addEventListener('DOMContentLoaded', () => {
       const img = p.imageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop';
       const ratingVal = (p.averageRating && p.averageRating > 0) ? p.averageRating.toFixed(1) : 'New';
       const reviewCount = p.reviewCount || 0;
-      const formattedPrice = Number(p.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const formattedPrice = Number(p.price).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
       let stockBadge = '<span class="badge badge-in-stock">In Stock</span>';
-      let actionBtn = `<button type="button" class="btn btn-primary btn-block add-to-cart-btn" data-product-id="${p.id}" aria-label="Add ${escapeHtml(p.name)} to Cart">Add to Cart</button>`;
-
       if (p.stockQty <= 0) {
         stockBadge = '<span class="badge badge-out-of-stock">Out of Stock</span>';
-        actionBtn = '<button type="button" class="btn btn-outline btn-block" disabled>Unavailable</button>';
       } else if (p.stockQty <= 5) {
         stockBadge = `<span class="badge badge-low-stock">Only ${p.stockQty} left</span>`;
+      }
+
+      const brandHtml = p.brand ? `<div class="product-brand">${escapeHtml(p.brand)}</div>` : '';
+      let discountHtml = '';
+      if (p.originalPrice && Number(p.originalPrice) > Number(p.price)) {
+        const origFormatted = Number(p.originalPrice).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        const discountPct = p.discountPercent || Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
+        discountHtml = `
+          <span class="product-original-price">₹${origFormatted}</span>
+          <span class="product-discount-badge">${discountPct}% OFF</span>
+        `;
+      }
+
+      let actionHtml = '';
+      if (p.stockQty <= 0) {
+        actionHtml = '<button type="button" class="btn btn-outline btn-block" disabled>Unavailable</button>';
+      } else {
+        actionHtml = `
+          <button type="button" class="btn btn-primary btn-block add-to-cart-btn" data-product-id="${p.id}" aria-label="Add ${escapeHtml(p.name)} to Cart" style="flex: 1;">Add to Cart</button>
+          <a href="${contextPath}/products/${p.id}" class="btn btn-outline btn-buy-now" style="padding: 0.625rem 0.75rem; font-size: 0.85rem;" title="View & Buy Now">Buy &rarr;</a>
+        `;
       }
 
       return `
@@ -124,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>
           </div>
           <div class="product-card-content">
+            ${brandHtml}
             <div class="product-category">${escapeHtml(p.category)}</div>
             <h3 class="product-title">
               <a href="${contextPath}/products/${p.id}">${escapeHtml(p.name)}</a>
@@ -134,11 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="product-rating-count">(${reviewCount})</span>
             </div>
             <div class="product-price-stock">
-              <span class="product-price">₹${formattedPrice}</span>
+              <div class="product-price-wrap">
+                <span class="product-price">₹${formattedPrice}</span>
+                ${discountHtml}
+              </div>
               ${stockBadge}
             </div>
             <div class="product-actions">
-              ${actionBtn}
+              ${actionHtml}
             </div>
           </div>
         </article>

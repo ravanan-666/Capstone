@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<c:set var="pageTitle" value="${product.name} — DjMart" scope="request"/>
+<c:set var="pageTitle" value="${product.name} — DJ Mart" scope="request"/>
 <jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
@@ -40,11 +40,21 @@
 
         <!-- Right: Information & Purchase Controls -->
         <div class="product-info-panel">
-            <span class="product-category" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
-                <c:out value="${product.category}"/>
-            </span>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">
+                <span class="product-category" style="font-size: 0.85rem; margin-bottom: 0;">
+                    <c:out value="${product.category}"/>
+                </span>
+                <c:if test="${not empty product.brand}">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">
+                        Brand: <c:out value="${product.brand}"/>
+                    </span>
+                </c:if>
+            </div>
 
-            <h1><c:out value="${product.name}"/></h1>
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;"><c:out value="${product.name}"/></h1>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.75rem;">
+                SKU: <code><c:out value="${product.sku != null ? product.sku : 'DJM-PROD-'.concat(product.id)}"/></code>
+            </div>
 
             <div class="product-rating" style="margin-bottom: 1.25rem;">
                 <span style="font-size: 1.1rem;">★</span>
@@ -61,8 +71,24 @@
                 </span>
             </div>
 
-            <div class="product-price">
-                ₹<fmt:formatNumber value="${product.price}" pattern="#,##0.00"/>
+            <div style="display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+                <span class="product-price" style="font-size: 2.2rem; font-weight: 700; color: var(--color-primary);">
+                    ₹<fmt:formatNumber value="${product.price}" pattern="#,##0.00"/>
+                </span>
+                <c:if test="${product.originalPrice != null && product.originalPrice > product.price}">
+                    <span style="font-size: 1.25rem; color: var(--color-text-muted); text-decoration: line-through;">
+                        ₹<fmt:formatNumber value="${product.originalPrice}" pattern="#,##0.00"/>
+                    </span>
+                    <span class="badge" style="background: #dcfce7; color: #15803d; font-size: 0.85rem; padding: 0.35rem 0.65rem; border-radius: 4px; font-weight: 700;">
+                        ${product.discountPercent}% OFF
+                    </span>
+                </c:if>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-success); font-weight: 600; margin-bottom: 1.25rem;">
+                ✓ Verified Current Market Price in INR
+                <c:if test="${product.priceVerifiedAt != null}">
+                    &bull; <span style="color: var(--color-text-muted); font-weight: normal;">Updated: <fmt:formatDate value="${product.priceVerifiedAt}" pattern="dd MMM yyyy"/></span>
+                </c:if>
             </div>
 
             <div class="product-description-text">
@@ -151,9 +177,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Customer Reviews & Ratings Section -->
+    <div id="reviewsSection" class="reviews-container">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+            <div>
+                <h2 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Client Reviews &amp; Reflections</h2>
+                <div style="font-size: 0.95rem; color: var(--color-text-muted);">
+                    Based on verified acquisitions through DJ Mart Atelier
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.75rem; font-family: 'Playfair Display', serif; font-weight: 700; color: var(--color-primary);">
+                    <c:choose>
+                        <c:when test="${product.averageRating != null && product.averageRating > 0}">
+                            <fmt:formatNumber value="${product.averageRating}" maxFractionDigits="1"/>
+                        </c:when>
+                        <c:otherwise>—</c:otherwise>
+                    </c:choose>
+                </span>
+                <span style="color: #f59e0b; font-size: 1.25rem;">★★★★★</span>
+                <span style="color: var(--color-text-muted); font-size: 0.9rem;">
+                    (${product.reviewCount != null ? product.reviewCount : 0} reviews)
+                </span>
+            </div>
+        </div>
+
+        <!-- Add Review Form (for logged-in clients) -->
+        <c:choose>
+            <c:when test="${not empty sessionScope.user}">
+                <div id="reviewFormContainer" class="checkout-section-card" style="margin-bottom: 2.5rem;">
+                    <h3>Share Your Assessment</h3>
+                    <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.25rem;">
+                        Verified reviews may be submitted once your order containing this item has been delivered.
+                    </p>
+
+                    <form id="submitReviewForm">
+                        <input type="hidden" name="productId" id="reviewProductId" value="${product.id}">
+                        <input type="hidden" id="selectedRating" name="rating" value="5">
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label class="form-label">Your Rating</label>
+                            <div class="star-rating-select" id="starRatingSelect" aria-label="Select star rating from 1 to 5">
+                                <span class="star-icon active" data-rating="1">★</span>
+                                <span class="star-icon active" data-rating="2">★</span>
+                                <span class="star-icon active" data-rating="3">★</span>
+                                <span class="star-icon active" data-rating="4">★</span>
+                                <span class="star-icon active" data-rating="5">★</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="reviewComment">Written Assessment</label>
+                            <textarea id="reviewComment" name="comment" class="form-control" rows="3"
+                                      placeholder="Reflect on craftsmanship, material quality, and fulfillment experience..."
+                                      maxlength="1000"></textarea>
+                        </div>
+
+                        <button type="submit" id="submitReviewBtn" class="btn btn-primary">
+                            Submit Assessment
+                        </button>
+                    </form>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="checkout-section-card" style="margin-bottom: 2.5rem; text-align: center; padding: 2rem;">
+                    <p style="margin-bottom: 1rem; color: var(--color-text-muted);">
+                        Have you received this item? Sign in to your account to contribute a verified review.
+                    </p>
+                    <a href="${pageContext.request.contextPath}/auth/login?redirect=/products/${product.id}" class="btn btn-outline">
+                        Sign In to Review
+                    </a>
+                </div>
+            </c:otherwise>
+        </c:choose>
+
+        <!-- Existing Reviews List Container -->
+        <div id="reviewsList" class="review-list" data-product-id="${product.id}">
+            <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);" id="reviewsLoading">
+                Loading reviews...
+            </div>
+        </div>
+    </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/static/js/api-client.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/toast.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/product-details.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/reviews.js"></script>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp"/>

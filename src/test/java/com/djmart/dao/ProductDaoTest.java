@@ -89,13 +89,13 @@ class ProductDaoTest {
         assertFalse(fashion.isEmpty());
         assertTrue(fashion.stream().allMatch(p -> "Fashion".equals(p.getCategory())));
 
-        // Filter by price range ($50 to $100)
-        List<Product> midPrice = productDAO.search(null, null, new BigDecimal("50.00"), new BigDecimal("100.00"),
+        // Filter by price range (₹500 to ₹3,000)
+        List<Product> midPrice = productDAO.search(null, null, new BigDecimal("500.00"), new BigDecimal("3000.00"),
                 "price", "ASC", 0, 10);
         assertFalse(midPrice.isEmpty());
         for (Product p : midPrice) {
-            assertTrue(p.getPrice().compareTo(new BigDecimal("50.00")) >= 0);
-            assertTrue(p.getPrice().compareTo(new BigDecimal("100.00")) <= 0);
+            assertTrue(p.getPrice().compareTo(new BigDecimal("500.00")) >= 0);
+            assertTrue(p.getPrice().compareTo(new BigDecimal("3000.00")) <= 0);
         }
     }
 

@@ -23,6 +23,16 @@ public class ReviewResponse implements Serializable {
     public ReviewResponse() {
     }
 
+    public ReviewResponse(Long id, Long productId, Long userId, String userName, Integer rating, String comment, Timestamp createdAt) {
+        this.id = id;
+        this.productId = productId;
+        this.userId = userId;
+        this.userName = userName;
+        this.rating = rating;
+        this.comment = comment;
+        this.createdAt = createdAt;
+    }
+
     public static ReviewResponse fromReview(Review review) {
         if (review == null) {
             return null;

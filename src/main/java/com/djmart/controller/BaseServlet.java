@@ -14,11 +14,11 @@ import com.google.gson.JsonSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,7 +33,7 @@ public abstract class BaseServlet extends HttpServlet {
 
     /**
      * Resolves the request path relative to the application context.
-     * E.g. for context "/djmart" and URI "/djmart/api/v1/products", returns "/api/v1/products".
+     * E.g. for context "/DJ Mart" and URI "/DJ Mart/api/v1/products", returns "/api/v1/products".
      */
     protected String getPath(HttpServletRequest request) {
         String contextPath = request.getContextPath();

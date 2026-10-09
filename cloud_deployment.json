@@ -1,0 +1,11 @@
+{
+  "deploymentStatus": "LIVE",
+  "publicUrl": "https://wise-penguin-31.loca.lt",
+  "endpointIpPassword": "106.195.38.201",
+  "localPort": 8081,
+  "rootContext": "/",
+  "djMartContext": "/Dj Mart/",
+  "cloudPlatform": "Localtunnel Public Cloud Gateway",
+  "lastUpdated": "2026-09-21T09:26:58.955Z",
+  "instructions": "First time browser visitors: click \"Click to Continue\" or enter Endpoint IP: 106.195.38.201"
+}
