@@ -100,8 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (emptyCatalog) emptyCatalog.style.display = 'none';
 
     const contextPath = ApiClient.getContextPath();
+    const placeholderImg = ApiClient.getPlaceholderImage();
     const html = items.map(p => {
-      const img = p.imageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop';
+      const img = ApiClient.resolveImageUrl(p.imageUrl);
       const ratingVal = (p.averageRating && p.averageRating > 0) ? p.averageRating.toFixed(1) : 'New';
       const reviewCount = p.reviewCount || 0;
       const formattedPrice = Number(p.price).toLocaleString('en-IN', { maximumFractionDigits: 0 });
@@ -138,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <article class="product-card" data-product-id="${p.id}">
           <div class="product-card-image-wrap">
             <a href="${contextPath}/products/${p.id}">
-              <img src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" class="product-card-image" loading="lazy">
+              <img src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" class="product-card-image" loading="lazy" onerror="if(this.src!=='${escapeHtml(placeholderImg)}'){this.onerror=null;this.src='${escapeHtml(placeholderImg)}';}">
             </a>
           </div>
           <div class="product-card-content">

@@ -193,7 +193,8 @@
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="${prod.imageUrl}" alt="" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-border);">
+                                            <c:set var="adminProdImg" value="${prod.imageUrl != null && not empty prod.imageUrl ? prod.imageUrl : '/static/images/placeholder.svg'}"/>
+                                            <img src="<c:url value='${adminProdImg}'/>" alt="" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-border);" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                                             <div>
                                                 <a href="${pageContext.request.contextPath}/products/${prod.id}" style="font-weight: 600; color: var(--color-primary);">
                                                     <c:out value="${prod.name}"/>

@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Re-render rows
     if (cartRowsContainer) {
+      const placeholderImg = ApiClient.getPlaceholderImage();
       cartRowsContainer.innerHTML = cart.items.map(item => {
-        const itemImg = item.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop';
+        const itemImg = ApiClient.resolveImageUrl(item.productImageUrl);
         const formattedUnitPrice = Number(item.unitPrice).toLocaleString('en-IN', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `
           <div class="cart-item-row" data-cart-item-id="${item.id}">
-            <img src="${escapeHtml(itemImg)}" alt="${escapeHtml(item.productName)}" class="cart-item-image">
+            <img src="${escapeHtml(itemImg)}" alt="${escapeHtml(item.productName)}" class="cart-item-image" onerror="if(this.src!=='${escapeHtml(placeholderImg)}'){this.onerror=null;this.src='${escapeHtml(placeholderImg)}';}">
             <div>
               <div class="cart-item-title">${escapeHtml(item.productName)}</div>
               <div class="cart-item-price">Unit: ₹${formattedUnitPrice}</div>

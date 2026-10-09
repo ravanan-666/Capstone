@@ -81,7 +81,7 @@
         <!-- Category 1: Electronics -->
         <a href="${pageContext.request.contextPath}/products?category=Electronics" class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="height: 180px; overflow: hidden; background-color: #f1f5f9;">
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop" alt="Electronics" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<c:url value='/static/images/categories/cat-electronics.jpg'/>" alt="Electronics" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
             <div style="padding: 1.25rem;">
                 <span class="badge" style="background: #eff6ff; color: #2563eb; margin-bottom: 0.35rem;">7 Products</span>
@@ -93,7 +93,7 @@
         <!-- Category 2: Fashion -->
         <a href="${pageContext.request.contextPath}/products?category=Fashion" class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="height: 180px; overflow: hidden; background-color: #f1f5f9;">
-                <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop" alt="Fashion" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<c:url value='/static/images/categories/cat-fashion.jpg'/>" alt="Fashion" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
             <div style="padding: 1.25rem;">
                 <span class="badge" style="background: #eff6ff; color: #2563eb; margin-bottom: 0.35rem;">5 Products</span>
@@ -105,7 +105,7 @@
         <!-- Category 3: Home & Kitchen -->
         <a href="${pageContext.request.contextPath}/products?category=Home+%26+Kitchen" class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="height: 180px; overflow: hidden; background-color: #f1f5f9;">
-                <img src="https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500&auto=format&fit=crop" alt="Home & Kitchen" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<c:url value='/static/images/categories/cat-home-kitchen.jpg'/>" alt="Home & Kitchen" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
             <div style="padding: 1.25rem;">
                 <span class="badge" style="background: #eff6ff; color: #2563eb; margin-bottom: 0.35rem;">4 Products</span>
@@ -117,7 +117,7 @@
         <!-- Category 4: Books & Stationery -->
         <a href="${pageContext.request.contextPath}/products?category=Books+%26+Stationery" class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="height: 180px; overflow: hidden; background-color: #f1f5f9;">
-                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop" alt="Books & Stationery" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<c:url value='/static/images/categories/cat-books-stationery.jpg'/>" alt="Books & Stationery" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
             <div style="padding: 1.25rem;">
                 <span class="badge" style="background: #eff6ff; color: #2563eb; margin-bottom: 0.35rem;">4 Products</span>
@@ -129,7 +129,7 @@
         <!-- Category 5: Fitness & Lifestyle -->
         <a href="${pageContext.request.contextPath}/products?category=Fitness+%26+Lifestyle" class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="height: 180px; overflow: hidden; background-color: #f1f5f9;">
-                <img src="https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=500&auto=format&fit=crop" alt="Fitness & Lifestyle" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="<c:url value='/static/images/categories/cat-fitness-lifestyle.jpg'/>" alt="Fitness & Lifestyle" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
             <div style="padding: 1.25rem;">
                 <span class="badge" style="background: #eff6ff; color: #2563eb; margin-bottom: 0.35rem;">4 Products</span>

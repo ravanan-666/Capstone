@@ -100,5 +100,25 @@ const ApiClient = {
 
   delete(url, options = {}) {
     return this.request(url, { ...options, method: 'DELETE' });
+  },
+
+  getPlaceholderImage() {
+    const cp = this.getContextPath();
+    return (cp ? cp : '') + '/static/images/placeholder.svg';
+  },
+
+  resolveImageUrl(url) {
+    if (!url || typeof url !== 'string' || !url.trim()) {
+      return this.getPlaceholderImage();
+    }
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+      return trimmed;
+    }
+    const cp = this.getContextPath();
+    if (trimmed.startsWith('/')) {
+      return (cp && !trimmed.startsWith(cp)) ? (cp + trimmed) : trimmed;
+    }
+    return (cp ? cp + '/' : '/') + trimmed;
   }
 };

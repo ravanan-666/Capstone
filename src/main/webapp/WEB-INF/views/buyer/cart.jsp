@@ -40,10 +40,11 @@
 
             <div id="cartRowsContainer">
                 <c:forEach items="${cart.items}" var="item">
-                    <div class="cart-item-row" data-cart-item-id="${item.id}">
-                        <img src="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop'}"
+                        <c:set var="cartItemImg" value="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : '/static/images/placeholder.svg'}"/>
+                        <img src="<c:url value='${cartItemImg}'/>"
                              alt="<c:out value='${item.productName}'/>"
-                             class="cart-item-image">
+                             class="cart-item-image"
+                             onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
 
                         <div>
                             <div class="cart-item-title"><c:out value="${item.productName}"/></div>

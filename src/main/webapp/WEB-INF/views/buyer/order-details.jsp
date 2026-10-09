@@ -75,11 +75,12 @@
 
                 <div class="order-items-table-wrap">
                     <c:forEach items="${order.items}" var="item">
-                        <div class="order-line-item" style="padding: 1.25rem 0;">
-                            <img src="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&auto=format&fit=crop'}"
+                            <c:set var="orderItemImg" value="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : '/static/images/placeholder.svg'}"/>
+                            <img src="<c:url value='${orderItemImg}'/>"
                                  alt="<c:out value='${item.productName}'/>"
                                  class="order-line-thumb"
-                                 style="width: 80px; height: 80px;">
+                                 style="width: 80px; height: 80px;"
+                                 onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                             <div style="flex: 1; min-width: 0;">
                                 <a href="${pageContext.request.contextPath}/products/${item.productId}"
                                    style="color: var(--color-primary); font-weight: 600; font-size: 1.05rem; text-decoration: none;">

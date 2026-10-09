@@ -90,9 +90,11 @@
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.85rem;">
-                                            <img src="${p.imageUrl != null && not empty p.imageUrl ? p.imageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&auto=format&fit=crop'}"
+                                            <c:set var="sellerProdImg" value="${p.imageUrl != null && not empty p.imageUrl ? p.imageUrl : '/static/images/placeholder.svg'}"/>
+                                            <img src="<c:url value='${sellerProdImg}'/>"
                                                  alt="<c:out value='${p.name}'/>"
-                                                 style="width: 50px; height: 50px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border-light);">
+                                                 style="width: 50px; height: 50px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--color-border-light);"
+                                                 onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                                             <div>
                                                 <strong style="color: var(--color-primary); font-size: 0.95rem; display: block;">
                                                     <c:out value="${p.name}"/>

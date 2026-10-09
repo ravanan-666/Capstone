@@ -156,10 +156,11 @@
                     <!-- Line Items Preview -->
                     <div style="max-height: 280px; overflow-y: auto; margin-bottom: 1.25rem; padding-right: 0.5rem;">
                         <c:forEach items="${cart.items}" var="item">
-                            <div class="order-line-item">
-                                <img src="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120&auto=format&fit=crop'}"
+                                <c:set var="checkoutItemImg" value="${item.productImageUrl != null && not empty item.productImageUrl ? item.productImageUrl : '/static/images/placeholder.svg'}"/>
+                                <img src="<c:url value='${checkoutItemImg}'/>"
                                      alt="<c:out value='${item.productName}'/>"
-                                     class="order-line-thumb">
+                                     class="order-line-thumb"
+                                     onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                                 <div style="flex: 1; min-width: 0;">
                                     <h4 style="font-size: 0.9rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <c:out value="${item.productName}"/>

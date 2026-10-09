@@ -23,17 +23,20 @@
         <!-- Left: Product Image & Gallery -->
         <div class="product-gallery">
             <div class="gallery-main-image">
+                <c:set var="detailImg" value="${product.imageUrl != null && not empty product.imageUrl ? product.imageUrl : '/static/images/placeholder.svg'}"/>
                 <img id="mainProductImg"
-                     src="${product.imageUrl != null && not empty product.imageUrl ? product.imageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop'}"
+                     src="<c:url value='${detailImg}'/>"
                      alt="<c:out value='${product.name}'/>"
-                     loading="eager">
+                     loading="eager"
+                     onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
             </div>
 
             <!-- Thumbnail strip (if image present, provides angle previews) -->
             <div class="gallery-thumbnails" id="galleryThumbnails">
-                <div class="gallery-thumbnail active" data-img-src="${product.imageUrl}">
-                    <img src="${product.imageUrl != null && not empty product.imageUrl ? product.imageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format&fit=crop'}"
-                         alt="Main view">
+                <div class="gallery-thumbnail active" data-img-src="<c:url value='${detailImg}'/>">
+                    <img src="<c:url value='${detailImg}'/>"
+                         alt="Main view"
+                         onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                 </div>
             </div>
         </div>

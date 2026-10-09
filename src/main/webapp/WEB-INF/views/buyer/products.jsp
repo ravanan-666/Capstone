@@ -106,10 +106,12 @@
             <article class="product-card" data-product-id="${p.id}">
                 <div class="product-card-image-wrap">
                     <a href="${pageContext.request.contextPath}/products/${p.id}">
-                        <img src="${p.imageUrl != null && not empty p.imageUrl ? p.imageUrl : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop'}"
+                        <c:set var="resolvedImg" value="${p.imageUrl != null && not empty p.imageUrl ? p.imageUrl : '/static/images/placeholder.svg'}"/>
+                        <img src="<c:url value='${resolvedImg}'/>"
                              alt="<c:out value='${p.name}'/>"
                              class="product-card-image"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="if(this.src!=='<c:url value="/static/images/placeholder.svg"/>'){this.onerror=null;this.src='<c:url value="/static/images/placeholder.svg"/>';}">
                     </a>
                 </div>
                 <div class="product-card-content">
