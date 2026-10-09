@@ -1,7 +1,7 @@
 # Render Infrastructure-as-Code Blueprint for DJ Mart
 services:
   - type: web
-    name: djmart-ecommerce
+    name: djmart
     env: docker
     plan: free
     region: oregon
@@ -9,6 +9,9 @@ services:
     healthCheckPath: /api/v1/health
     envVars:
       - key: PORT
-        value: 10000
+        value: 8080
       - key: JAVA_OPTS
         value: "-Xmx512m -Xms256m"
+      - key: DATABASE_URL
+        sync: false
+

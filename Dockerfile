@@ -32,7 +32,10 @@ COPY --from=builder /build/target/djmart.war /usr/local/tomcat/webapps/ROOT.war
 
 # Default cloud container port
 ENV PORT=8080
-EXPOSE 8080
+EXPOSE 8080 10000
 
-# Configure dynamic port binding for Render/Railway/Cloud Run and start Tomcat
-CMD sed -i "s/port=\"8080\"/port=\"${PORT:-8080}\"/g" conf/server.xml && catalina.sh run
+# Copy startup script that ensures dual-port binding (8080 and 10000) for Render
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+CMD ["/usr/local/bin/docker-entrypoint.sh"]
